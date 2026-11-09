@@ -41,8 +41,8 @@ export default function SeteBreakdownChart() {
         </div>
 
         {/* Bar Chart */}
-        <div className="h-[240px] w-full mt-4">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-[240px] w-full min-w-0 mt-4">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
             <BarChart
               data={SETE_CRITERIA_DATA}
               layout="vertical"
@@ -119,3 +119,4 @@ export default function SeteBreakdownChart() {
     </div>
   );
 }
+

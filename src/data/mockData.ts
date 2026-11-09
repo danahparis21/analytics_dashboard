@@ -223,3 +223,4 @@ export const RISK_COURSES_DATA: RiskCourse[] = [
     recommendedAction: "Require weekly coding lab reviews."
   },
 ];
+

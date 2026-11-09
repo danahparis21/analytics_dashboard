@@ -103,3 +103,4 @@ export default function KpiDetailModal({ kpi, onClose }: KpiDetailModalProps) {
     </div>
   );
 }
+

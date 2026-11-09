@@ -121,8 +121,8 @@ export default function ForecastChart({ onOpenModelDetails }: ForecastChartProps
       {/* Main Chart + Right Side Forecast Performance Metrics */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 pt-5">
         {/* Left 3 Columns: Smooth Area/Line Chart */}
-        <div className="lg:col-span-3 h-[300px] sm:h-[340px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="lg:col-span-3 h-[300px] sm:h-[340px] w-full min-w-0">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={280}>
             <ComposedChart
               data={FORECAST_DATA}
               margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
@@ -300,3 +300,4 @@ export default function ForecastChart({ onOpenModelDetails }: ForecastChartProps
     </div>
   );
 }
+

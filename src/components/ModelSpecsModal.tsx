@@ -146,3 +146,4 @@ export default function ModelSpecsModal({ isOpen, onClose }: ModelSpecsModalProp
     </div>
   );
 }
+

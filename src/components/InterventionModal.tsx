@@ -160,3 +160,4 @@ export default function InterventionModal({ isOpen, onClose }: InterventionModal
     </div>
   );
 }
+

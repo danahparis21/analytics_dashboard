@@ -45,8 +45,8 @@ export default function RiskSubjectsChart({ onSelectCourse }: RiskSubjectsChartP
         </div>
 
         {/* Bar Chart */}
-        <div className="h-[240px] w-full mt-4">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-[240px] w-full min-w-0 mt-4">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
             <BarChart
               data={RISK_COURSES_DATA}
               margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
