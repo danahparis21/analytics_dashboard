@@ -1,0 +1,27 @@
+{
+  "model_metadata": {
+    "algorithm": "2nd-Order Polynomial Trend Regression",
+    "equation": "y = 1.46t\u00b2 + 45.68t + 967.71",
+    "mape": 1.11,
+    "rmse": 14.92,
+    "evaluation_status": "Passed Validation (MAPE < 5%)"
+  },
+  "projections": [
+    {
+      "term": "AY 26-27 1S (Forecast)",
+      "projected_enrollment": 1427,
+      "required_sections": 39,
+      "available_faculty": 35,
+      "faculty_deficit": -4,
+      "management_action": "Recruit 4 adjunct instructors before enrollment"
+    },
+    {
+      "term": "AY 26-27 2S (Forecast)",
+      "projected_enrollment": 1497,
+      "required_sections": 41,
+      "available_faculty": 35,
+      "faculty_deficit": -6,
+      "management_action": "Recruit 6 adjunct instructors before enrollment"
+    }
+  ]
+}

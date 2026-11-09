@@ -1,69 +1,217 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState } from "react";
+import Sidebar from "@/components/Sidebar";
+import Header from "@/components/Header";
+import AlertBanner from "@/components/AlertBanner";
+import KpiCard from "@/components/KpiCard";
+import KpiDetailModal from "@/components/KpiDetailModal";
+import InterventionModal from "@/components/InterventionModal";
+import ForecastChart from "@/components/ForecastChart";
+import SeteBreakdownChart from "@/components/SeteBreakdownChart";
+import RiskSubjectsChart from "@/components/RiskSubjectsChart";
+import CourseDrilldownModal from "@/components/CourseDrilldownModal";
+import ModelSpecsModal from "@/components/ModelSpecsModal";
+import { KPI_DATA, KPIItem, RiskCourse } from "@/data/mockData";
+import {
+  GraduationCap,
+  Sparkles,
+  BookOpen,
+  Users,
+  Award,
+  Layers,
+  CheckCircle2,
+  Calendar,
+  AlertTriangle,
+} from "lucide-react";
+
+export default function DashboardPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeNavTab, setActiveNavTab] = useState("dashboard");
+
+  // Linked Filter states
+  const [selectedYear, setSelectedYear] = useState("AY 2026-2027");
+  const [selectedTerm, setSelectedTerm] = useState("1st Semester");
+  const [selectedYearLevel, setSelectedYearLevel] = useState("All Levels");
+
+  // Modals state
+  const [selectedKpi, setSelectedKpi] = useState<KPIItem | null>(null);
+  const [isActionPlanOpen, setIsActionPlanOpen] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<RiskCourse | null>(null);
+  const [isModelSpecsOpen, setIsModelSpecsOpen] = useState(false);
+
+  // Filter KPI data
+  const academicKpis = KPI_DATA.filter(
+    (k) => k.category === "Academic Operations"
+  );
+  const teachingKpis = KPI_DATA.filter(
+    (k) => k.category === "Teaching Effectiveness"
+  );
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="min-h-screen bg-slate-100/70 text-slate-900 flex font-sans antialiased">
+      {/* Sidebar Navigation */}
+      <Sidebar
+        activeTab={activeNavTab}
+        setActiveTab={setActiveNavTab}
+        isOpen={sidebarOpen}
+        setIsOpen={setSidebarOpen}
+      />
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-72 transition-all">
+        {/* Sticky Top Header */}
+        <Header
+          onToggleSidebar={() => setSidebarOpen(true)}
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
+          selectedTerm={selectedTerm}
+          setSelectedTerm={setSelectedTerm}
+          selectedYearLevel={selectedYearLevel}
+          setSelectedYearLevel={setSelectedYearLevel}
+          onOpenAlerts={() => setIsActionPlanOpen(true)}
+          alertCount={2}
+          onPrintReport={handlePrint}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+
+        {/* Dashboard Body */}
+        <main className="p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
+          {/* Top Alert Banner */}
+          <AlertBanner onOpenActionPlan={() => setIsActionPlanOpen(true)} />
+
+          {/* Section 1: KPI Cards Grouped by Category Header (Inspired by prof's E-ForeSy dashboard) */}
+          <section className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+              {/* Category Group 1: Academic Operations (3 cols) */}
+              <div className="lg:col-span-3 space-y-3">
+                {/* Styled Category Header Banner */}
+                <div className="bg-gradient-to-r from-red-950 to-red-800 text-white px-4 py-2 rounded-xl shadow-xs flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <GraduationCap className="w-4 h-4 text-red-200" />
+                    <span className="text-xs font-bold uppercase tracking-wider">
+                      Academic Operations & Student Success
+                    </span>
+                  </div>
+                  <span className="text-[10px] bg-red-900/80 px-2 py-0.5 rounded text-red-200 border border-red-700 font-medium">
+                    3 Core KPIs
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {academicKpis.map((kpi) => (
+                    <KpiCard
+                      key={kpi.id}
+                      kpi={kpi}
+                      onOpenDetails={(item) => setSelectedKpi(item)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Category Group 2: Teaching Effectiveness (2 cols) */}
+              <div className="lg:col-span-2 space-y-3">
+                {/* Styled Category Header Banner */}
+                <div className="bg-gradient-to-r from-amber-900 to-amber-700 text-white px-4 py-2 rounded-xl shadow-xs flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Award className="w-4 h-4 text-amber-200" />
+                    <span className="text-xs font-bold uppercase tracking-wider">
+                      Faculty Effectiveness & Attendance
+                    </span>
+                  </div>
+                  <span className="text-[10px] bg-amber-950/70 px-2 py-0.5 rounded text-amber-200 border border-amber-600 font-medium">
+                    2 Core KPIs
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {teachingKpis.map((kpi) => (
+                    <KpiCard
+                      key={kpi.id}
+                      kpi={kpi}
+                      onOpenDetails={(item) => setSelectedKpi(item)}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Section 2: Primary Predictive Analytics Visualization (Centerpiece) */}
+          <section>
+            <ForecastChart
+              onOpenModelDetails={() => setIsModelSpecsOpen(true)}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+          </section>
+
+          {/* Section 3: Diagnostic & Early Alert Visualizations (2 Columns) */}
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Visualization 2: SETE Criteria Radar/Bar Breakdown */}
+            <SeteBreakdownChart />
+
+            {/* Visualization 3: Bottleneck Courses with Clickable Drill-down */}
+            <RiskSubjectsChart
+              onSelectCourse={(course) => setSelectedCourse(course)}
+            />
+          </section>
+
+          {/* Section 4: Academic Decision Support Summary Bar */}
+          <section className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold">
+                <BookOpen className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-900">
+                  Integrated Decision Support Summary (BAT 405)
+                </h4>
+                <p className="text-slate-500">
+                  Batangas State University ARASOF-Nasugbu • CICS Department of Information Technology
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => setIsModelSpecsOpen(true)}
+                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition"
+              >
+                Part IV Model Formulation
+              </button>
+              <button
+                onClick={() => setIsActionPlanOpen(true)}
+                className="px-3 py-1.5 rounded-lg bg-red-800 hover:bg-red-900 text-white font-semibold transition"
+              >
+                Chair Action Protocols
+              </button>
+            </div>
+          </section>
+        </main>
+      </div>
+
+      {/* Modals & Slide-overs */}
+      <KpiDetailModal
+        kpi={selectedKpi}
+        onClose={() => setSelectedKpi(null)}
+      />
+
+      <InterventionModal
+        isOpen={isActionPlanOpen}
+        onClose={() => setIsActionPlanOpen(false)}
+      />
+
+      <CourseDrilldownModal
+        course={selectedCourse}
+        onClose={() => setSelectedCourse(null)}
+      />
+
+      <ModelSpecsModal
+        isOpen={isModelSpecsOpen}
+        onClose={() => setIsModelSpecsOpen(false)}
+      />
     </div>
   );
 }
