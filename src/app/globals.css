@@ -6,7 +6,7 @@
   --spartan: #8a1538;
 }
 
-/* Subtle dot-grid background pattern (like the Oripio reference) */
+/* Subtle dot-grid background pattern */
 body {
   background-color: #f1f3f6;
   background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px);
@@ -18,3 +18,73 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ── EXACT PRINT SPECIFICATION FOR SINGLE-PAGE LONG BOND PAPER (8.5 x 13 in) ── */
+@page {
+  size: 8.5in 13in;
+  margin: 0.4in;
+}
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #0f172a !important;
+    font-size: 9.5px !important;
+    line-height: 1.25 !important;
+  }
+
+  /* Hide interactive, modal, navigation elements */
+  aside,
+  header button,
+  .print-hidden,
+  button,
+  select,
+  input {
+    display: none !important;
+  }
+
+  /* Unconstrain main wrapper to full print width */
+  main {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  header {
+    position: static !important;
+    background: transparent !important;
+    border-bottom: 2px solid #8a1538 !important;
+    padding: 0 0 4px 0 !important;
+    margin-bottom: 6px !important;
+  }
+
+  .shadow-xs, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl {
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  /* Tighten spacing for 1-page fit */
+  .space-y-3 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 6px !important;
+  }
+
+  .space-y-3\.5 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 6px !important;
+  }
+
+  .p-3\.5, .p-4, .p-5 {
+    padding: 6px 8px !important;
+  }
+
+  .break-inside-avoid {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
