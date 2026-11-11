@@ -58,7 +58,7 @@ export default function Sidebar({
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold tracking-tight text-white text-base">SpartanPulse</span>
+                <span className="font-extrabold tracking-tight text-white text-base">Spartalytics</span>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-red-900/60 text-red-300 border border-red-700/50">
                   Decision
                 </span>

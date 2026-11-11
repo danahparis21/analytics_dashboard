@@ -2,8 +2,16 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "SpartanPulse Analytics | Program Chair Decision Support",
+  title: "SPARTALYTICS | BSIT Program Chair",
   description: "Academic Monitoring & Teaching Effectiveness Decision Support System - BatStateU CICS",
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({

@@ -8,7 +8,7 @@ import {
 import {
   GraduationCap, AlertTriangle, Calendar, ChevronRight, Layers,
   BookOpen, Printer, Search, Users, Info, Filter, MessageSquareQuote,
-  Check, X, Briefcase,
+  Check, X, Briefcase, Smile, Frown, Meh, Menu, User,
 } from "lucide-react";
 
 // ─── PALETTE ─────────────────────────────────────────────────────────────────
@@ -71,15 +71,15 @@ const TERM_DATA_STORE: Record<string, TermData> = {
       { code: "PT", name: "Classroom Pacing", score: 81.6 },
     ],
     flaggedSections: [
-      { name: "BSIT 2-1 Section", course: "IT 201 Data Structures", courseType: "Major", failing: 18, total: 40, rate: 45.0 },
-      { name: "BSIT 2-3 Section", course: "IT 201 Data Structures", courseType: "Major", failing: 14, total: 38, rate: 36.8 },
-      { name: "BSIT 3-2 Section", course: "IT 301 Advanced Databases", courseType: "Major", failing: 12, total: 36, rate: 33.3 },
-      { name: "BSIT 1-2 Section", course: "MATH 201 Discrete Math", courseType: "GenEd", failing: 8, total: 42, rate: 19.0 },
+      { name: "BSIT 2-1 Section", course: "CS 211 Object-Oriented Programming", courseType: "Major", failing: 18, total: 40, rate: 45.0 },
+      { name: "BSIT 2-3 Section", course: "CS 211 Object-Oriented Programming", courseType: "Major", failing: 14, total: 38, rate: 36.8 },
+      { name: "BSIT 3-2 Section", course: "IT 314 Web Systems and Technologies", courseType: "Major", failing: 12, total: 36, rate: 33.3 },
+      { name: "BSIT 1-2 Section", course: "GEd 102 Mathematics in the Modern World", courseType: "GenEd", failing: 8, total: 42, rate: 19.0 },
     ],
     bottleneckCourses: [
-      { code: "IT 201", name: "Data Structures & Algorithms", courseType: "Major", failRate: 23.4, students: 184 },
-      { code: "IT 301", name: "Advanced Database Systems", courseType: "Major", failRate: 21.8, students: 162 },
-      { code: "MATH 201", name: "Discrete Mathematics", courseType: "GenEd", failRate: 19.1, students: 190 },
+      { code: "CS 211", name: "Object-Oriented Programming", courseType: "Major", failRate: 23.4, students: 184 },
+      { code: "IT 314", name: "Web Systems and Technologies", courseType: "Major", failRate: 21.8, students: 162 },
+      { code: "GEd 102", name: "Mathematics in the Modern World", courseType: "GenEd", failRate: 19.1, students: 190 },
     ],
   },
   "AY 2026–2027_Semester 2": {
@@ -109,12 +109,12 @@ const TERM_DATA_STORE: Record<string, TermData> = {
       { code: "PT", name: "Classroom Pacing", score: 82.4 },
     ],
     flaggedSections: [
-      { name: "BSIT 2-2 Section", course: "IT 202 Web Systems", courseType: "Major", failing: 13, total: 39, rate: 33.3 },
-      { name: "BSIT 3-1 Section", course: "IT 304 Systems Integration", courseType: "Major", failing: 11, total: 35, rate: 31.4 },
+      { name: "BSIT 2-2 Section", course: "IT 222 Advanced Database Management System", courseType: "Major", failing: 13, total: 39, rate: 33.3 },
+      { name: "BSIT 3-1 Section", course: "IT 322 Advanced Systems Integration and Architecture", courseType: "Major", failing: 11, total: 35, rate: 31.4 },
     ],
     bottleneckCourses: [
-      { code: "IT 202", name: "Web Systems & Tech", courseType: "Major", failRate: 20.5, students: 175 },
-      { code: "IT 304", name: "Systems Integration & Arch", courseType: "Major", failRate: 19.8, students: 155 },
+      { code: "IT 222", name: "Advanced Database Management System", courseType: "Major", failRate: 20.5, students: 175 },
+      { code: "IT 322", name: "Advanced Systems Integration and Architecture", courseType: "Major", failRate: 19.8, students: 155 },
     ],
   },
 
@@ -146,12 +146,12 @@ const TERM_DATA_STORE: Record<string, TermData> = {
       { code: "PT", name: "Classroom Pacing", score: 80.5 },
     ],
     flaggedSections: [
-      { name: "BSIT 2-1 Section", course: "IT 201 Data Structures", courseType: "Major", failing: 15, total: 38, rate: 39.5 },
-      { name: "BSIT 3-1 Section", course: "IT 301 Adv. Databases", courseType: "Major", failing: 10, total: 34, rate: 29.4 },
+      { name: "BSIT 2-1 Section", course: "CS 211 Object-Oriented Programming", courseType: "Major", failing: 15, total: 38, rate: 39.5 },
+      { name: "BSIT 3-1 Section", course: "IT 314 Web Systems and Technologies", courseType: "Major", failing: 10, total: 34, rate: 29.4 },
     ],
     bottleneckCourses: [
-      { code: "IT 201", name: "Data Structures & Algorithms", courseType: "Major", failRate: 22.1, students: 170 },
-      { code: "IT 301", name: "Advanced Database Systems", courseType: "Major", failRate: 20.4, students: 150 },
+      { code: "CS 211", name: "Object-Oriented Programming", courseType: "Major", failRate: 22.1, students: 170 },
+      { code: "IT 314", name: "Web Systems and Technologies", courseType: "Major", failRate: 20.4, students: 150 },
     ],
   },
   "AY 2025–2026_Semester 2": {
@@ -181,10 +181,10 @@ const TERM_DATA_STORE: Record<string, TermData> = {
       { code: "PT", name: "Classroom Pacing", score: 81.2 },
     ],
     flaggedSections: [
-      { name: "BSIT 2-3 Section", course: "IT 201 Data Structures", courseType: "Major", failing: 14, total: 37, rate: 37.8 },
+      { name: "BSIT 2-3 Section", course: "IT 222 Advanced Database Management System", courseType: "Major", failing: 14, total: 37, rate: 37.8 },
     ],
     bottleneckCourses: [
-      { code: "IT 201", name: "Data Structures & Algorithms", courseType: "Major", failRate: 21.5, students: 165 },
+      { code: "IT 222", name: "Advanced Database Management System", courseType: "Major", failRate: 21.5, students: 165 },
     ],
   },
 
@@ -216,12 +216,12 @@ const TERM_DATA_STORE: Record<string, TermData> = {
       { code: "PT", name: "Classroom Pacing", score: 79.5 },
     ],
     flaggedSections: [
-      { name: "BSIT 2-1 Section", course: "IT 201 Data Structures", courseType: "Major", failing: 16, total: 35, rate: 45.7 },
-      { name: "BSIT 1-2 Section", course: "MATH 201 Discrete Math", courseType: "GenEd", failing: 10, total: 38, rate: 26.3 },
+      { name: "BSIT 2-1 Section", course: "CS 211 Object-Oriented Programming", courseType: "Major", failing: 16, total: 35, rate: 45.7 },
+      { name: "BSIT 1-2 Section", course: "GEd 102 Mathematics in the Modern World", courseType: "GenEd", failing: 10, total: 38, rate: 26.3 },
     ],
     bottleneckCourses: [
-      { code: "IT 201", name: "Data Structures & Algorithms", courseType: "Major", failRate: 24.5, students: 160 },
-      { code: "MATH 201", name: "Discrete Mathematics", courseType: "GenEd", failRate: 22.0, students: 175 },
+      { code: "CS 211", name: "Object-Oriented Programming", courseType: "Major", failRate: 24.5, students: 160 },
+      { code: "GEd 102", name: "Mathematics in the Modern World", courseType: "GenEd", failRate: 22.0, students: 175 },
     ],
   },
   "AY 2024–2025_Semester 2": {
@@ -251,10 +251,10 @@ const TERM_DATA_STORE: Record<string, TermData> = {
       { code: "PT", name: "Classroom Pacing", score: 80.1 },
     ],
     flaggedSections: [
-      { name: "BSIT 2-2 Section", course: "IT 201 Data Structures", courseType: "Major", failing: 12, total: 36, rate: 33.3 },
+      { name: "BSIT 2-2 Section", course: "IT 222 Advanced Database Management System", courseType: "Major", failing: 12, total: 36, rate: 33.3 },
     ],
     bottleneckCourses: [
-      { code: "IT 201", name: "Data Structures & Algorithms", courseType: "Major", failRate: 21.0, students: 155 },
+      { code: "IT 222", name: "Advanced Database Management System", courseType: "Major", failRate: 21.0, students: 155 },
     ],
   },
 
@@ -286,10 +286,10 @@ const TERM_DATA_STORE: Record<string, TermData> = {
       { code: "PT", name: "Classroom Pacing", score: 77.8 },
     ],
     flaggedSections: [
-      { name: "BSIT 2-1 Section", course: "IT 201 Data Structures", courseType: "Major", failing: 17, total: 34, rate: 50.0 },
+      { name: "BSIT 2-1 Section", course: "CS 211 Object-Oriented Programming", courseType: "Major", failing: 17, total: 34, rate: 50.0 },
     ],
     bottleneckCourses: [
-      { code: "IT 201", name: "Data Structures & Algorithms", courseType: "Major", failRate: 26.2, students: 145 },
+      { code: "CS 211", name: "Object-Oriented Programming", courseType: "Major", failRate: 26.2, students: 145 },
     ],
   },
   "AY 2023–2024_Semester 2": {
@@ -319,24 +319,24 @@ const TERM_DATA_STORE: Record<string, TermData> = {
       { code: "PT", name: "Classroom Pacing", score: 78.6 },
     ],
     flaggedSections: [
-      { name: "BSIT 2-2 Section", course: "IT 201 Data Structures", courseType: "Major", failing: 13, total: 35, rate: 37.1 },
+      { name: "BSIT 2-2 Section", course: "IT 222 Advanced Database Management System", courseType: "Major", failing: 13, total: 35, rate: 37.1 },
     ],
     bottleneckCourses: [
-      { code: "IT 201", name: "Data Structures & Algorithms", courseType: "Major", failRate: 23.0, students: 150 },
+      { code: "IT 222", name: "Advanced Database Management System", courseType: "Major", failRate: 23.0, students: 150 },
     ],
   },
 };
 
 // Historical Actual vs Forecast Series
 const ENROLLMENT_TIME_SERIES = [
-  { term: "AY 2023–2024 Semester 1", short: "23-24 S1", actual: 1040, forecast: null },
-  { term: "AY 2023–2024 Semester 2", short: "23-24 S2", actual: 1110, forecast: null },
-  { term: "AY 2024–2025 Semester 1", short: "24-25 S1", actual: 1180, forecast: null },
-  { term: "AY 2024–2025 Semester 2", short: "24-25 S2", actual: 1250, forecast: null },
-  { term: "AY 2025–2026 Semester 1", short: "25-26 S1", actual: 1310, forecast: null },
-  { term: "AY 2025–2026 Semester 2", short: "25-26 S2", actual: 1340, forecast: 1340 },
-  { term: "AY 2026–2027 Semester 1", short: "26-27 S1", actual: 1420, forecast: 1420 }, // Active term
-  { term: "AY 2026–2027 Semester 2", short: "26-27 S2", actual: null, forecast: 1490 }, // Model projection
+  { term: "AY 2023–2024 Semester 1", short: "23-24 S1", actual: 1040, forecast: null, teachers: 30, sections: 28, gap: 0, isForecast: false, label: "Semester 1, AY 2023–2024" },
+  { term: "AY 2023–2024 Semester 2", short: "23-24 S2", actual: 1110, forecast: null, teachers: 32, sections: 30, gap: 0, isForecast: false, label: "Semester 2, AY 2023–2024" },
+  { term: "AY 2024–2025 Semester 1", short: "24-25 S1", actual: 1180, forecast: null, teachers: 32, sections: 32, gap: 0, isForecast: false, label: "Semester 1, AY 2024–2025" },
+  { term: "AY 2024–2025 Semester 2", short: "24-25 S2", actual: 1250, forecast: null, teachers: 34, sections: 34, gap: 0, isForecast: false, label: "Semester 2, AY 2024–2025" },
+  { term: "AY 2025–2026 Semester 1", short: "25-26 S1", actual: 1310, forecast: null, teachers: 35, sections: 35, gap: 0, isForecast: false, label: "Semester 1, AY 2025–2026" },
+  { term: "AY 2025–2026 Semester 2", short: "25-26 S2", actual: 1340, forecast: 1340, teachers: 35, sections: 36, gap: 1, isForecast: false, label: "Semester 2, AY 2025–2026" },
+  { term: "AY 2026–2027 Semester 1", short: "26-27 S1", actual: 1420, forecast: 1420, teachers: 35, sections: 38, gap: 3, isForecast: false, label: "Semester 1, AY 2026–2027" },
+  { term: "AY 2026–2027 Semester 2", short: "26-27 S2", actual: null, forecast: 1490, teachers: 35, sections: 40, gap: 5, isForecast: true, label: "Semester 2, AY 2026–2027 (Forecast)" },
 ];
 
 const KPI_DEFINITIONS = [
@@ -430,8 +430,8 @@ const KPI_ICONS: Record<number, typeof GraduationCap> = {
 const ANONYMIZED_FACULTY_ROSTER = [
   {
     id: "CLUS-01",
-    title: "Instructional Cluster 1 (Data Structures & Core IT)",
-    courseCode: "IT 201",
+    title: "Instructional Cluster 1 (Object-Oriented Programming)",
+    courseCode: "CS 211",
     instructorAlias: "Faculty Instructor A",
     courseType: "Major" as const,
     sections: 4,
@@ -448,8 +448,8 @@ const ANONYMIZED_FACULTY_ROSTER = [
   },
   {
     id: "CLUS-02",
-    title: "Instructional Cluster 2 (Database Systems & Analytics)",
-    courseCode: "IT 301",
+    title: "Instructional Cluster 2 (Database Management System)",
+    courseCode: "IT 211",
     instructorAlias: "Faculty Instructor B",
     courseType: "Major" as const,
     sections: 4,
@@ -466,8 +466,8 @@ const ANONYMIZED_FACULTY_ROSTER = [
   },
   {
     id: "CLUS-03",
-    title: "Instructional Cluster 3 (Discrete Mathematics & Logic)",
-    courseCode: "MATH 201",
+    title: "Instructional Cluster 3 (Mathematics in the Modern World)",
+    courseCode: "GEd 102",
     instructorAlias: "Faculty Instructor C",
     courseType: "GenEd" as const,
     sections: 5,
@@ -484,8 +484,8 @@ const ANONYMIZED_FACULTY_ROSTER = [
   },
   {
     id: "CLUS-04",
-    title: "Instructional Cluster 4 (Object-Oriented Programming & Web)",
-    courseCode: "IT 202",
+    title: "Instructional Cluster 4 (Web Systems and Technologies)",
+    courseCode: "IT 314",
     instructorAlias: "Faculty Instructor D",
     courseType: "Major" as const,
     sections: 4,
@@ -502,8 +502,8 @@ const ANONYMIZED_FACULTY_ROSTER = [
   },
   {
     id: "CLUS-05",
-    title: "Instructional Cluster 5 (Systems Architecture & Cloud)",
-    courseCode: "IT 303",
+    title: "Instructional Cluster 5 (Systems Integration and Architecture)",
+    courseCode: "IT 312",
     instructorAlias: "Faculty Instructor E",
     courseType: "Major" as const,
     sections: 4,
@@ -520,8 +520,8 @@ const ANONYMIZED_FACULTY_ROSTER = [
   },
   {
     id: "CLUS-06",
-    title: "Instructional Cluster 6 (Information Assurance & Security)",
-    courseCode: "IT 305",
+    title: "Instructional Cluster 6 (Information Assurance and Security)",
+    courseCode: "IT 323",
     instructorAlias: "Faculty Instructor F",
     courseType: "Major" as const,
     sections: 4,
@@ -538,8 +538,8 @@ const ANONYMIZED_FACULTY_ROSTER = [
   },
   {
     id: "CLUS-07",
-    title: "Instructional Cluster 7 (Mobile & Modern Application Dev)",
-    courseCode: "IT 307",
+    title: "Instructional Cluster 7 (Application Development and Emerging Technologies)",
+    courseCode: "IT 331",
     instructorAlias: "Faculty Instructor G",
     courseType: "Major" as const,
     sections: 4,
@@ -556,8 +556,8 @@ const ANONYMIZED_FACULTY_ROSTER = [
   },
   {
     id: "CLUS-08",
-    title: "Instructional Cluster 8 (Senior Capstone & Practicum)",
-    courseCode: "IT 401",
+    title: "Instructional Cluster 8 (Capstone Project)",
+    courseCode: "IT 324, IT 411",
     instructorAlias: "Faculty Instructor H",
     courseType: "Major" as const,
     sections: 4,
@@ -575,7 +575,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
   {
     id: "CLUS-09",
     title: "Staffing Deficit (Unassigned Section Blocks)",
-    courseCode: "IT 201, IT 301, MATH 201",
+    courseCode: "CS 211, IT 314, GEd 102",
     instructorAlias: "Needs 3 Part-Time Teachers",
     courseType: "Major" as const,
     sections: 3,
@@ -604,7 +604,7 @@ const ANONYMIZED_STUDENT_FEEDBACK = [
   },
   {
     category: "Assessment Fairness (AG)",
-    theme: "3rd-Year Database Architecture Courses",
+    theme: "2nd-Year Database Courses",
     comment: "Exam questions contained query optimization scenarios that were not discussed during hands-on lab hours.",
     sentiment: "negative",
     sentimentLabel: "Negative / Concern",
@@ -620,7 +620,7 @@ const ANONYMIZED_STUDENT_FEEDBACK = [
   },
   {
     category: "Instructional Clarity (IC)",
-    theme: "Software Engineering & Web Systems",
+    theme: "Web Systems and Technologies",
     comment: "Very detailed coding demonstrations and helpful explanations of pointers and linked lists with clear grading rubrics.",
     sentiment: "positive",
     sentimentLabel: "Positive",
@@ -628,7 +628,65 @@ const ANONYMIZED_STUDENT_FEEDBACK = [
   },
 ];
 
+const KPI_INSIGHTS: Record<number, (v: string) => string> = {
+  1: (v) => `${v} of enrolled students passed their courses.`,
+  2: (v) => `${v} of students are failing or close to failing at midterm. Lower is better.`,
+  3: (v) => `${v} of students come back the next semester.`,
+  4: (v) => `${v} of evaluated teachers got a satisfactory student rating (85% or higher).`,
+  5: (v) => `${v} of scheduled class hours were actually held.`,
+};
+
+const SETE_MEANING: Record<string, string> = {
+  SC: "how much of the syllabus was covered on schedule",
+  AC: "how available teachers are for consultation",
+  IC: "how clearly lessons are explained",
+  AG: "how fair exams and grading feel",
+  PT: "how well the lesson pace fits students",
+};
+
+// Green = got better, red = got worse, gray = no change or baseline.
+// For At-risk rate, a drop is an improvement, so it is green.
+function deltaTone(delta: string, higherIsBetter = true) {
+  const n = parseFloat(delta);
+  if (Number.isNaN(n) || n === 0) return "text-neutral-500";
+  const good = higherIsBetter ? n > 0 : n < 0;
+  return good ? "font-medium text-[#15803D]" : "font-medium text-[#C62828]";
+}
+
 // ─── SMALL SHARED PIECES ─────────────────────────────────────────────────────
+
+// Short "Insight" bubble that shows when you hover its parent (needs class "group/tip relative" on the parent)
+function TipBubble({ text, align = "center" }: { text: string; align?: "left" | "center" | "right" }) {
+  const pos = align === "left" ? "left-0" : align === "right" ? "right-0" : "left-1/2 -translate-x-1/2";
+  return (
+    <span
+      role="tooltip"
+      className={`pointer-events-none absolute top-full z-40 mt-2 hidden w-56 rounded-lg bg-neutral-900 px-3 py-2 text-left text-xs font-normal leading-snug text-white shadow-lg md:group-hover/tip:block md:group-has-[:focus-visible]/tip:block ${pos}`}
+    >
+      <span className="mb-0.5 block text-[11px] font-medium text-neutral-400">Insight</span>
+      {text}
+    </span>
+  );
+}
+
+function Tip({
+  text,
+  align = "center",
+  className = "",
+  children,
+}: {
+  text: string;
+  align?: "left" | "center" | "right";
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <span className={`group/tip relative ${className}`}>
+      {children}
+      <TipBubble text={text} align={align} />
+    </span>
+  );
+}
 
 function ChartTooltip({ active, payload, label }: any) {
   if (!active || !payload || !payload.length) return null;
@@ -668,13 +726,22 @@ const STATUS_STYLE: Record<string, { label: string; dot: string; text: string }>
   "Needs 3 Part-Time Teachers": { label: "Needs 3 teachers", dot: "bg-[#8A1538]", text: "font-semibold text-[#8A1538]" },
 };
 
+const STATUS_TIP: Record<string, string> = {
+  "Full Load": "This cluster teaches 18 units, the standard load.",
+  "Overloaded": "This cluster teaches more than the standard 18 units.",
+  "Unassigned": "These sections do not have a teacher yet.",
+  "Needs 3 Part-Time Teachers": "3 sections have no teacher yet. Hire 3 part-time teachers.",
+};
+
 function StatusLabel({ status }: { status: string }) {
   const s = STATUS_STYLE[status] ?? { label: status, dot: "bg-neutral-400", text: "text-neutral-600" };
   return (
-    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap text-xs ${s.text}`}>
-      <span className={`h-2 w-2 rounded-full ${s.dot}`} />
-      {s.label}
-    </span>
+    <Tip align="right" text={STATUS_TIP[status] ?? s.label}>
+      <span className={`inline-flex items-center gap-1.5 whitespace-nowrap text-xs ${s.text}`}>
+        <span className={`h-2 w-2 rounded-full ${s.dot}`} />
+        {s.label}
+      </span>
+    </Tip>
   );
 }
 
@@ -746,6 +813,24 @@ export default function Dashboard() {
   const [selectedSemester, setSelectedSemester] = useState("Semester 1");
   const [selectedYearLevel, setSelectedYearLevel] = useState("All Year Levels");
   const [selectedCourseType, setSelectedCourseType] = useState("All Courses");
+  const [selectedTrendTerm, setSelectedTrendTerm] = useState<string | null>(null);
+
+  // Splash / Loading Screen (starts in red with logo fading in, then fades out to dashboard)
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFading, setIsFading] = useState(false);
+
+  useEffect(() => {
+    const fadeTimer = setTimeout(() => {
+      setIsFading(true);
+    }, 1700);
+    const removeTimer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2400);
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(removeTimer);
+    };
+  }, []);
 
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [checked, setChecked] = useState<Record<string, boolean>>({});
@@ -817,7 +902,7 @@ export default function Dashboard() {
       enrolled = baseTermData.yearLevels.find(y => y.name === "2nd Year")?.count ?? 385;
       faculty = 9;
       sections = 10;
-      shortage = Math.min(0, faculty - sections); // -1 (IT 201 section load)
+      shortage = Math.min(0, faculty - sections); // -1 (CS 211 section load)
       passingNum = Number(Math.min(100, Math.max(0, baseTermData.kpis.passingRate.num - 3.2)).toFixed(1));
       atRiskNum = Number(Math.min(100, Math.max(0, baseTermData.kpis.atRiskRate.num + 3.2)).toFixed(1));
       seteNum = Number(Math.min(100, Math.max(0, baseTermData.kpis.seteScore.num - 1.7)).toFixed(1));
@@ -986,6 +1071,17 @@ export default function Dashboard() {
 
   const shortCount = Math.abs(Math.min(0, termData.facultyShortage));
 
+  // Active trend item for enrollment chart preview
+  const activeTrendData = useMemo(() => {
+    if (selectedTrendTerm) {
+      const match = ENROLLMENT_TIME_SERIES.find(p => p.short === selectedTrendTerm);
+      if (match) return match;
+    }
+    // Default to active term 26-27 S1 or active global semester
+    const currentShort = selectedSemester === "Semester 2" ? "26-27 S2" : "26-27 S1";
+    return ENROLLMENT_TIME_SERIES.find(p => p.short === currentShort) ?? ENROLLMENT_TIME_SERIES[6];
+  }, [selectedTrendTerm, selectedSemester]);
+
   // Active KPI data for chart
   const activeKpiConfig = useMemo(() => {
     if (!activeKpiId) return null;
@@ -1063,7 +1159,7 @@ export default function Dashboard() {
       note: `${baseTermData.sectionsNeeded} sections needed, ${baseTermData.availableFaculty} regular teachers available.`,
       items: [
         { label: "Hiring letter", text: "Send the request to the Dean." },
-        { label: "Open sections", text: "Assign teachers to IT 201, IT 301 and MATH 201." },
+        { label: "Open sections", text: "Assign teachers to CS 211, IT 314 and GEd 102." },
         { label: "Contracts", text: "Sign contracts before enrollment opens." },
       ],
     },
@@ -1142,10 +1238,12 @@ export default function Dashboard() {
     const metric = termData.kpis[def.key as keyof typeof termData.kpis];
     const met = def.higherIsBetter ? metric.num >= def.targetNum : metric.num <= def.targetNum;
     const Icon = KPI_ICONS[def.id];
+    const changeText = Number.isNaN(parseFloat(metric.delta)) ? "" : ` Change from last semester: ${metric.delta}.`;
+    const tip = `${KPI_INSIGHTS[def.id](metric.value)}${changeText} ${met ? "Goal met." : "Goal missed."}`;
     return (
       <div
         key={def.id}
-        className={`relative rounded-2xl bg-white transition ${isSelected ? "ring-2 ring-[#8A1538]" : "ring-1 ring-transparent hover:ring-neutral-300"
+        className={`group/tip relative rounded-2xl bg-white transition ${isSelected ? "ring-2 ring-[#8A1538]" : "ring-1 ring-transparent hover:ring-neutral-300"
           }`}
       >
         <button
@@ -1165,7 +1263,9 @@ export default function Dashboard() {
             Goal {def.target.split(" (")[0]}
           </span>
         </button>
-        <span className="pointer-events-none absolute left-2.5 top-2 text-[11px] tabular-nums text-neutral-500 sm:left-3 sm:top-2.5 sm:text-xs">
+        <span
+          className={`pointer-events-none absolute left-2.5 top-2 text-[11px] tabular-nums sm:left-3 sm:top-2.5 sm:text-xs ${deltaTone(metric.delta, def.higherIsBetter)}`}
+        >
           {metric.delta}
         </span>
         <button
@@ -1176,6 +1276,7 @@ export default function Dashboard() {
         >
           <Info className="h-4 w-4" />
         </button>
+        <TipBubble text={tip} />
       </div>
     );
   };
@@ -1186,19 +1287,56 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#E5E6E9] font-sans text-neutral-900 md:flex">
-
-      {/* ══════════ SIDEBAR (desktop) ══════════ */}
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col bg-white p-4 md:flex print:hidden">
-        <div className="flex items-center gap-2.5 px-1 pb-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#8A1538] text-white">
-            <GraduationCap className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-[15px] font-semibold leading-tight">SpartanPulse</p>
-            <p className="text-xs text-neutral-500">BatStateU · CICS ARASOF</p>
+    <>
+      {/* ══════════ FULLSCREEN LOADING SPLASH (Spartan Crimson red + logo fade-in) ══════════ */}
+      {isLoading && (
+        <div
+          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#8A1538] transition-opacity duration-700 ease-in-out ${
+            isFading ? "opacity-0 pointer-events-none" : "opacity-100"
+          }`}
+          aria-hidden="true"
+        >
+          <div className="flex flex-col items-center text-center px-6">
+            <div className="relative mb-5 flex items-center justify-center">
+              {/* Subtle ambient glow */}
+              <div className="absolute -inset-8 rounded-full bg-white/10 blur-2xl animate-pulse" />
+              <img
+                src="/spartalytics_white.png"
+                alt="Spartalytics"
+                className="relative h-24 w-24 sm:h-28 sm:w-28 object-contain drop-shadow-2xl animate-logo-fade-in"
+              />
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-normal tracking-wider text-white drop-shadow-sm animate-logo-fade-in">
+              <span className="font-black">SPARTA</span>LYTICS
+            </h1>
+            <p className="mt-1.5 text-xs sm:text-sm font-medium text-rose-200/90 tracking-wide animate-logo-fade-in">
+              BatStateU CICS · Program Chair Decision Support
+            </p>
+            <div className="mt-7 flex items-center gap-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-white/90 animate-ping" />
+              <span className="text-[11px] font-medium tracking-wider uppercase text-rose-200/80">
+                Loading Dashboard...
+              </span>
+            </div>
           </div>
         </div>
+      )}
+
+      <div className="min-h-screen bg-[#E5E6E9] font-sans text-neutral-900 md:flex">
+
+        {/* ══════════ SIDEBAR (desktop) ══════════ */}
+        <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col bg-white p-4 md:flex print:hidden">
+          <div className="flex items-center gap-2.5 px-1 pb-5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white border border-neutral-200/90 p-0.5 overflow-hidden shrink-0 shadow-xs">
+              <img src="/spartalytics.png" alt="Spartalytics" className="h-full w-full object-contain" />
+            </div>
+            <div>
+              <p className="text-[15px] font-normal tracking-wider leading-tight">
+                <span className="font-black">SPARTA</span>LYTICS
+              </p>
+              <p className="text-xs text-neutral-500">BatStateU · CICS ARASOF</p>
+            </div>
+          </div>
 
         <div className="mb-4">{searchBox}</div>
 
@@ -1243,8 +1381,8 @@ export default function Dashboard() {
         <header className="sticky top-0 z-20 bg-[#E5E6E9]/90 px-3 pb-2 pt-3 backdrop-blur sm:px-6 md:pt-6">
           <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#8A1538] text-white md:hidden">
-                <GraduationCap className="h-5 w-5" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-neutral-200/90 md:hidden p-1 overflow-hidden shadow-xs">
+                <img src="/spartalytics.png" alt="Spartalytics" className="h-full w-full object-contain" />
               </div>
               <div className="min-w-0">
                 <h1 className="text-xl font-semibold leading-tight sm:text-2xl">Dashboard</h1>
@@ -1259,6 +1397,17 @@ export default function Dashboard() {
             </div>
 
             <div className="flex shrink-0 items-center gap-2 print:hidden">
+              {/* Profile Pill: BSIT Program Chair */}
+              <div className="hidden sm:flex items-center gap-2 rounded-xl bg-white px-3 py-1.5 border border-neutral-200/90 shadow-2xs">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#8A1538] text-[11px] font-bold text-white shadow-xs">
+                  PC
+                </div>
+                <div className="min-w-0 text-left">
+                  <p className="truncate text-xs font-bold text-neutral-900 leading-tight">Program Chair</p>
+                  <p className="truncate text-[10.5px] text-neutral-500 font-medium">BS Information Technology</p>
+                </div>
+              </div>
+
               <button
                 type="button"
                 onClick={() => window.print()}
@@ -1289,41 +1438,71 @@ export default function Dashboard() {
 
           <div className="md:hidden print:hidden">{searchBox}</div>
 
-          {/* ── Welcome + totals ── */}
+          {/* ── Welcome + totals (Enhanced Hero Section with Background Watermark & Rich Gradient) ── */}
           <section className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-12">
-            <div className="col-span-2 flex flex-col rounded-2xl bg-[#8A1538] p-5 text-white lg:col-span-6">
-              <h2 className="text-xl font-semibold sm:text-2xl">Welcome to SpartanPulse!</h2>
-              <p className="mt-1 text-sm text-white/80">Here is how the BSIT program is doing.</p>
-
-              <div className="mt-4 space-y-1.5 border-t border-white/20 pt-4">
-                {alerts.length > 0 ? (
-                  alerts.map((text) => (
-                    <button
-                      key={text}
-                      type="button"
-                      onClick={() => setShowIntervention(true)}
-                      className="flex w-full items-center gap-2.5 rounded-lg py-1 text-left text-sm transition hover:text-white/80"
-                    >
-                      <span className="h-2 w-2 shrink-0 rounded-full bg-[#F2B705]" />
-                      {text}
-                    </button>
-                  ))
-                ) : (
-                  <p className="text-sm text-white/80">No alerts right now.</p>
-                )}
+            <div className="col-span-2 relative flex flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br from-[#8A1538] via-[#73102C] to-[#480718] p-5 sm:p-6 text-white lg:col-span-6 shadow-xs border border-[#8A1538]/30 group">
+              {/* Background Logo Watermark */}
+              <div className="pointer-events-none absolute -bottom-7 -right-5 select-none opacity-[0.13] transition-all duration-700 ease-out group-hover:scale-105 group-hover:opacity-[0.18]">
+                <img
+                  src="/spartalytics_white.png"
+                  alt=""
+                  className="h-60 w-60 object-contain"
+                />
               </div>
 
-              <button
-                type="button"
-                onClick={() => setShowIntervention(true)}
-                className="mt-4 inline-flex w-fit items-center gap-1 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100 print:hidden"
-              >
-                See action plan
-                <ChevronRight className="h-4 w-4" />
-              </button>
+              {/* Decorative radial glows */}
+              <div className="pointer-events-none absolute -top-10 -right-10 h-44 w-44 rounded-full bg-rose-400/10 blur-3xl" />
+              <div className="pointer-events-none absolute -bottom-10 -left-10 h-36 w-36 rounded-full bg-black/25 blur-2xl" />
+
+              <div className="relative z-10">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-200 backdrop-blur-xs border border-white/15">
+                    BSIT Decision Support
+                  </span>
+                  <span className="text-[11px] font-medium text-rose-200/80 hidden sm:inline">
+                    CICS · ARASOF
+                  </span>
+                </div>
+
+                <h2 className="mt-2.5 text-xl font-normal sm:text-2xl tracking-tight">
+                  Welcome to <span className="font-black">SPARTA</span>LYTICS!
+                </h2>
+                <p className="mt-1 text-xs sm:text-sm text-rose-100/90 font-normal">
+                  Here is how the BSIT program is currently performing.
+                </p>
+
+                <div className="mt-4 space-y-1.5 border-t border-white/15 pt-3.5">
+                  {alerts.length > 0 ? (
+                    alerts.map((text) => (
+                      <button
+                        key={text}
+                        type="button"
+                        onClick={() => setShowIntervention(true)}
+                        className="flex w-full items-center gap-2.5 rounded-lg py-1 text-left text-xs sm:text-sm transition hover:text-white/80 cursor-pointer"
+                      >
+                        <span className="h-2 w-2 shrink-0 rounded-full bg-[#F2B705] ring-2 ring-[#F2B705]/30 animate-pulse" />
+                        <span className="font-medium text-white">{text}</span>
+                      </button>
+                    ))
+                  ) : (
+                    <p className="text-xs sm:text-sm text-rose-200">No active alerts right now.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="relative z-10 mt-5 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowIntervention(true)}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-rose-50 hover:shadow-md cursor-pointer print:hidden"
+                >
+                  <span>See action plan</span>
+                  <ChevronRight className="h-4 w-4 text-neutral-600" />
+                </button>
+              </div>
             </div>
 
-            <div className="flex flex-col items-center justify-center rounded-2xl bg-white p-4 text-center lg:col-span-3">
+            <div className="group/tip relative flex flex-col items-center justify-center rounded-2xl bg-white p-4 text-center lg:col-span-3">
               <span className="mb-2.5 hidden h-10 w-10 items-center justify-center rounded-full bg-neutral-100 text-neutral-600 sm:flex">
                 <Users className="h-5 w-5" />
               </span>
@@ -1331,16 +1510,24 @@ export default function Dashboard() {
                 {termData.totalEnrolled.toLocaleString()}
               </p>
               <p className="mt-1.5 text-sm text-neutral-700">Total students</p>
-              <p className="mt-0.5 text-xs text-neutral-500">+4.9% from last year</p>
+              <p className="mt-0.5 text-xs text-neutral-500">
+                <span className="font-medium text-[#15803D]">+4.9%</span> from last year
+              </p>
+              <TipBubble
+                text={`${termData.totalEnrolled.toLocaleString()} students are enrolled this semester. That is 4.9% more than last year.`}
+              />
             </div>
 
-            <div className="flex flex-col items-center justify-center rounded-2xl bg-white p-4 text-center lg:col-span-3">
+            <div className="group/tip relative flex flex-col items-center justify-center rounded-2xl bg-white p-4 text-center lg:col-span-3">
               <span className="mb-2.5 hidden h-10 w-10 items-center justify-center rounded-full bg-neutral-100 text-neutral-600 sm:flex">
                 <Briefcase className="h-5 w-5" />
               </span>
               <p className="text-3xl font-semibold tabular-nums tracking-tight sm:text-4xl">{termData.availableFaculty}</p>
               <p className="mt-1.5 text-sm text-neutral-700">Total teachers</p>
               <p className="mt-0.5 text-xs text-neutral-500">{termData.availableFaculty * 3} units</p>
+              <TipBubble
+                text={`${termData.availableFaculty} regular teachers can cover ${termData.availableFaculty} sections (${termData.availableFaculty * 3} units). Extra sections need part-time teachers.`}
+              />
             </div>
           </section>
 
@@ -1373,7 +1560,7 @@ export default function Dashboard() {
                 </p>
               </div>
 
-              <div className="print:hidden">
+              <div className="print:hidden flex items-center gap-2.5 flex-wrap">
                 {activeKpiConfig ? (
                   <button
                     type="button"
@@ -1383,7 +1570,7 @@ export default function Dashboard() {
                     Back to enrollment
                   </button>
                 ) : (
-                  <div role="tablist" className="flex gap-5">
+                  <div role="tablist" className="flex gap-4">
                     {([
                       ["forecast", "With forecast"],
                       ["actual", "Actual only"],
@@ -1394,9 +1581,9 @@ export default function Dashboard() {
                         role="tab"
                         aria-selected={chartView === id}
                         onClick={() => setChartView(id)}
-                        className={`border-b-2 pb-1.5 text-sm font-medium transition ${chartView === id
-                            ? "border-neutral-900 text-neutral-900"
-                            : "border-transparent text-neutral-500 hover:text-neutral-900"
+                        className={`border-b-2 pb-1 text-xs font-medium transition cursor-pointer ${chartView === id
+                          ? "border-neutral-900 text-neutral-900"
+                          : "border-transparent text-neutral-500 hover:text-neutral-900"
                           }`}
                       >
                         {label}
@@ -1408,69 +1595,82 @@ export default function Dashboard() {
             </div>
 
             <div className="grid grid-cols-1 gap-4 pt-4 lg:grid-cols-4">
-              <div className="h-[220px] min-w-0 lg:col-span-3">
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={190}>
-                  {activeKpiConfig ? (
-                    <LineChart data={activeKpiConfig.data} margin={{ top: 10, right: 12, left: -15, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ECECEF" />
-                      <XAxis dataKey="short" tick={{ fill: "#737373", fontSize: 11 }} tickLine={false} axisLine={false} />
-                      <YAxis
-                        tick={{ fill: "#737373", fontSize: 11 }}
-                        tickLine={false}
-                        axisLine={false}
-                        domain={activeKpiConfig.domain}
-                        ticks={activeKpiConfig.ticks}
-                        tickFormatter={(v) => `${v}%`}
-                      />
-                      <Tooltip content={<ChartTooltip />} />
-                      <ReferenceLine
-                        y={activeKpiConfig.target}
-                        stroke="#171717"
-                        strokeDasharray="4 4"
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="value"
-                        stroke={RED}
-                        strokeWidth={2.5}
-                        dot={{ r: 4, fill: RED, stroke: "#fff", strokeWidth: 1.5 }}
-                        activeDot={{ r: 6, fill: RED, stroke: "#fff", strokeWidth: 2 }}
-                      />
-                    </LineChart>
-                  ) : (
-                    <AreaChart data={ENROLLMENT_TIME_SERIES} margin={{ top: 10, right: 12, left: -15, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="actualFill" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={RED} stopOpacity={0.14} />
-                          <stop offset="95%" stopColor={RED} stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ECECEF" />
-                      <XAxis dataKey="short" tick={{ fill: "#737373", fontSize: 11 }} tickLine={false} axisLine={false} />
-                      <YAxis tick={{ fill: "#737373", fontSize: 11 }} tickLine={false} axisLine={false} domain={[900, 1600]} ticks={[900, 1100, 1300, 1500]} />
-                      <Tooltip content={<ChartTooltip />} />
-                      <Area
-                        type="monotone"
-                        dataKey="actual"
-                        stroke={RED}
-                        strokeWidth={2.5}
-                        fill="url(#actualFill)"
-                        connectNulls
-                      />
-                      {chartView === "forecast" && (
+              <div className="relative h-[220px] min-w-0 lg:col-span-3 lg:h-auto lg:min-h-[260px]">
+                <div className="absolute inset-0">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={190}>
+                    {activeKpiConfig ? (
+                      <LineChart data={activeKpiConfig.data} margin={{ top: 10, right: 12, left: -15, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ECECEF" />
+                        <XAxis dataKey="short" tick={{ fill: "#737373", fontSize: 11 }} tickLine={false} axisLine={false} />
+                        <YAxis
+                          tick={{ fill: "#737373", fontSize: 11 }}
+                          tickLine={false}
+                          axisLine={false}
+                          domain={activeKpiConfig.domain}
+                          ticks={activeKpiConfig.ticks}
+                          tickFormatter={(v) => `${v}%`}
+                        />
+                        <Tooltip content={<ChartTooltip />} />
+                        <ReferenceLine
+                          y={activeKpiConfig.target}
+                          stroke="#171717"
+                          strokeDasharray="4 4"
+                        />
                         <Line
                           type="monotone"
-                          dataKey="forecast"
+                          dataKey="value"
                           stroke={RED}
-                          strokeWidth={2}
-                          strokeDasharray="5 5"
-                          dot={{ r: 4, fill: RED }}
+                          strokeWidth={2.5}
+                          dot={{ r: 4, fill: RED, stroke: "#fff", strokeWidth: 1.5 }}
+                          activeDot={{ r: 6, fill: RED, stroke: "#fff", strokeWidth: 2 }}
+                        />
+                      </LineChart>
+                    ) : (
+                      <AreaChart
+                        data={ENROLLMENT_TIME_SERIES}
+                        margin={{ top: 10, right: 12, left: -15, bottom: 0 }}
+                        className="cursor-pointer"
+                        onClick={(e: any) => {
+                          if (e && e.activePayload && e.activePayload.length) {
+                            const pt = e.activePayload[0].payload;
+                            setSelectedTrendTerm(pt.short);
+                          }
+                        }}
+                      >
+                        <defs>
+                          <linearGradient id="actualFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={RED} stopOpacity={0.14} />
+                            <stop offset="95%" stopColor={RED} stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ECECEF" />
+                        <XAxis dataKey="short" tick={{ fill: "#737373", fontSize: 11 }} tickLine={false} axisLine={false} />
+                        <YAxis tick={{ fill: "#737373", fontSize: 11 }} tickLine={false} axisLine={false} domain={[900, 1600]} ticks={[900, 1100, 1300, 1500]} />
+                        <Tooltip content={<ChartTooltip />} />
+                        <Area
+                          type="monotone"
+                          dataKey="actual"
+                          stroke={RED}
+                          strokeWidth={2.5}
+                          fill="url(#actualFill)"
                           connectNulls
                         />
-                      )}
-                    </AreaChart>
-                  )}
-                </ResponsiveContainer>
+                        {chartView === "forecast" && (
+                          <Line
+                            type="monotone"
+                            dataKey="forecast"
+                            stroke={RED}
+                            strokeWidth={2}
+                            strokeDasharray="5 5"
+                            dot={{ r: 5, fill: RED, cursor: "pointer" }}
+                            activeDot={{ r: 7, fill: RED, cursor: "pointer" }}
+                            connectNulls
+                          />
+                        )}
+                      </AreaChart>
+                    )}
+                  </ResponsiveContainer>
+                </div>
               </div>
 
               {/* Side summary */}
@@ -1491,7 +1691,9 @@ export default function Dashboard() {
                       </div>
                       <div className="flex justify-between gap-3 border-b border-neutral-100 pb-2">
                         <dt className="text-neutral-500">Change</dt>
-                        <dd className="font-medium tabular-nums">{activeKpiConfig.currentDelta}</dd>
+                        <dd className={`tabular-nums ${deltaTone(activeKpiConfig.currentDelta, activeKpiConfig.def.higherIsBetter)}`}>
+                          {activeKpiConfig.currentDelta}
+                        </dd>
                       </div>
                       <div className="flex justify-between gap-3">
                         <dt className="text-neutral-500">Source</dt>
@@ -1501,39 +1703,100 @@ export default function Dashboard() {
                   </>
                 ) : (
                   <>
-                    <div className="rounded-2xl bg-neutral-100 p-4 text-center">
+                    {/* Semester switch (same plain style as the chart tabs) */}
+                    <div className="flex gap-4 print:hidden">
+                      {([
+                        ["26-27 S1", "26-27 S1"],
+                        ["26-27 S2", "26-27 S2 forecast"],
+                      ] as const).map(([short, label]) => {
+                        const on = activeTrendData.short === short;
+                        return (
+                          <button
+                            key={short}
+                            type="button"
+                            aria-pressed={on}
+                            onClick={() => setSelectedTrendTerm(short)}
+                            className={`border-b-2 pb-1 text-xs font-medium transition cursor-pointer ${on
+                              ? "border-neutral-900 text-neutral-900"
+                              : "border-transparent text-neutral-500 hover:text-neutral-900"
+                              }`}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="rounded-2xl bg-neutral-100 px-4 py-3 text-center">
                       <p className="text-xs text-neutral-600">
-                        {baseTermData.isCurrentOrFuture ? "Expected students" : "Students enrolled"}
+                        {activeTrendData.isForecast ? "Expected students" : "Students enrolled"}
                       </p>
                       <p className="mt-0.5 text-3xl font-semibold tabular-nums tracking-tight">
-                        {termData.totalEnrolled.toLocaleString()}
+                        {(activeTrendData.forecast ?? activeTrendData.actual ?? 1490).toLocaleString()}
                       </p>
-                      <p className="mt-1 text-xs text-neutral-500">{selectedSemester}, {selectedYear}</p>
+                      <p className="mt-0.5 text-xs text-neutral-500">{activeTrendData.label}</p>
                     </div>
-                    <dl className="space-y-2 text-sm">
-                      <div className="flex justify-between gap-3 border-b border-neutral-100 pb-2">
-                        <dt className="text-neutral-500">Teachers</dt>
-                        <dd className="font-medium tabular-nums">{termData.availableFaculty}</dd>
-                      </div>
-                      <div className="flex justify-between gap-3 border-b border-neutral-100 pb-2">
-                        <dt className="text-neutral-500">Sections needed</dt>
-                        <dd className="font-medium tabular-nums">{termData.sectionsNeeded}</dd>
-                      </div>
-                      <div className="flex items-center justify-between gap-3 border-b border-neutral-100 pb-2">
-                        <dt className="text-neutral-500">Teacher gap</dt>
-                        <dd>
-                          {shortCount > 0 ? (
-                            <span className="rounded-md bg-[#F2B705]/25 px-1.5 py-0.5 text-sm font-semibold">{shortCount} short</span>
+
+                    <div className="space-y-2 text-sm">
+                      <Tip
+                        className="block"
+                        align="right"
+                        text={`${activeTrendData.teachers} regular teachers can handle ${activeTrendData.teachers} sections.`}
+                      >
+                        <div className="flex justify-between gap-3 border-b border-neutral-100 pb-2">
+                          <span className="text-neutral-500">Teachers</span>
+                          <span className="font-medium tabular-nums">{activeTrendData.teachers}</span>
+                        </div>
+                      </Tip>
+                      <Tip
+                        className="block"
+                        align="right"
+                        text={`${activeTrendData.sections} sections are needed to seat all ${(activeTrendData.forecast ?? activeTrendData.actual ?? 0).toLocaleString()} students.`}
+                      >
+                        <div className="flex justify-between gap-3 border-b border-neutral-100 pb-2">
+                          <span className="text-neutral-500">Sections needed</span>
+                          <span className="font-medium tabular-nums">{activeTrendData.sections}</span>
+                        </div>
+                      </Tip>
+                      <Tip
+                        className="block"
+                        align="right"
+                        text={
+                          activeTrendData.gap > 0
+                            ? `${activeTrendData.sections} sections are needed but only ${activeTrendData.teachers} teachers are available. Hire ${activeTrendData.gap} part-time teachers.`
+                            : "There are enough teachers for every section."
+                        }
+                      >
+                        <div className="flex items-center justify-between gap-3 border-b border-neutral-100 pb-2">
+                          <span className="text-neutral-500">Teacher gap</span>
+                          {activeTrendData.gap > 0 ? (
+                            <span className="rounded-md bg-[#F2B705]/25 px-1.5 py-0.5 text-sm font-semibold">
+                              {activeTrendData.gap} short
+                            </span>
                           ) : (
                             <span className="font-medium">None</span>
                           )}
-                        </dd>
-                      </div>
-                      <div className="flex justify-between gap-3">
-                        <dt className="text-neutral-500">Forecast error (MAPE)</dt>
-                        <dd className="font-medium tabular-nums">1.11%</dd>
-                      </div>
-                    </dl>
+                        </div>
+                      </Tip>
+                      <Tip
+                        className="block"
+                        align="right"
+                        text={
+                          activeTrendData.isForecast
+                            ? "On average, the forecast is off by 1.11%. Lower is better."
+                            : "This is the real, recorded enrollment."
+                        }
+                      >
+                        <div className="flex justify-between gap-3">
+                          <span className="text-neutral-500">
+                            {activeTrendData.isForecast ? "Forecast error (MAPE)" : "Data"}
+                          </span>
+                          <span className="font-medium tabular-nums">
+                            {activeTrendData.isForecast ? "1.11%" : "Actual record"}
+                          </span>
+                        </div>
+                      </Tip>
+                    </div>
                   </>
                 )}
               </div>
@@ -1601,20 +1864,25 @@ export default function Dashboard() {
                 {baseTermData.yearLevels.map((c, i) => {
                   const isSelected = selectedYearLevel === c.name;
                   return (
-                    <button
+                    <Tip
                       key={c.name}
-                      type="button"
-                      onClick={() => setSelectedYearLevel(isSelected ? "All Year Levels" : c.name)}
-                      aria-pressed={isSelected}
-                      className={`flex min-h-10 items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm ring-1 transition ${isSelected ? "bg-neutral-50 ring-neutral-900" : "ring-neutral-200 hover:bg-neutral-50"
-                        }`}
+                      className="block"
+                      text={`${c.count} students, ${c.percent} of all enrolled. Select to filter the dashboard.`}
                     >
-                      <span className="flex items-center gap-2">
-                        <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: YEAR_COLORS[i % YEAR_COLORS.length] }} />
-                        {c.name}
-                      </span>
-                      <span className="font-semibold tabular-nums">{c.count}</span>
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedYearLevel(isSelected ? "All Year Levels" : c.name)}
+                        aria-pressed={isSelected}
+                        className={`flex min-h-10 w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm ring-1 transition ${isSelected ? "bg-neutral-50 ring-neutral-900" : "ring-neutral-200 hover:bg-neutral-50"
+                          }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: YEAR_COLORS[i % YEAR_COLORS.length] }} />
+                          {c.name}
+                        </span>
+                        <span className="font-semibold tabular-nums">{c.count}</span>
+                      </button>
+                    </Tip>
                   );
                 })}
               </div>
@@ -1633,22 +1901,33 @@ export default function Dashboard() {
                 {filteredSections.map((sec) => {
                   const critical = sec.rate >= 20;
                   return (
-                    <li key={sec.name + sec.course} className="flex items-center justify-between gap-3 py-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">{sec.name}</p>
-                        <p className="truncate text-xs text-neutral-500">
-                          {sec.course} · {sec.failing} of {sec.total} failing
-                        </p>
-                      </div>
-                      <div className="shrink-0 text-right">
-                        <p className={`text-lg font-semibold tabular-nums leading-tight ${critical ? "text-[#8A1538]" : "text-neutral-900"}`}>
-                          {sec.rate.toFixed(1)}%
-                        </p>
-                        <p className="flex items-center justify-end gap-1.5 text-xs text-neutral-600">
-                          {!critical && <span className="h-2 w-2 rounded-full bg-[#F2B705]" />}
-                          {critical ? "Critical" : "Watch"}
-                        </p>
-                      </div>
+                    <li key={sec.name + sec.course}>
+                      <Tip
+                        className="block"
+                        text={
+                          critical
+                            ? `${sec.failing} of ${sec.total} students (${sec.rate.toFixed(1)}%) are failing at midterm. This is above the 20% limit, so the section needs action.`
+                            : `${sec.failing} of ${sec.total} students (${sec.rate.toFixed(1)}%) are failing at midterm. This is close to the 20% limit, so keep watching.`
+                        }
+                      >
+                        <div className="flex items-center justify-between gap-3 py-3">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium">{sec.name}</p>
+                            <p className="truncate text-xs text-neutral-500">
+                              {sec.course} · {sec.failing} of {sec.total} failing
+                            </p>
+                          </div>
+                          <div className="shrink-0 text-right">
+                            <p className={`text-lg font-semibold tabular-nums leading-tight ${critical ? "text-[#8A1538]" : "text-neutral-900"}`}>
+                              {sec.rate.toFixed(1)}%
+                            </p>
+                            <p className="flex items-center justify-end gap-1.5 text-xs text-neutral-600">
+                              {!critical && <span className="h-2 w-2 rounded-full bg-[#F2B705]" />}
+                              {critical ? "Critical" : "Watch"}
+                            </p>
+                          </div>
+                        </div>
+                      </Tip>
                     </li>
                   );
                 })}
@@ -1796,18 +2075,24 @@ export default function Dashboard() {
                   {displayedSeteDimensions.map((c) => {
                     const low = c.score < 85;
                     return (
-                      <div key={c.name}>
-                        <div className="mb-1.5 flex justify-between text-sm">
-                          <span className="text-neutral-700">{c.name}</span>
-                          <span className="font-semibold tabular-nums">{c.score}%</span>
+                      <Tip
+                        key={c.name}
+                        className="block"
+                        text={`${c.score}% shows ${SETE_MEANING[c.code]}. The goal is 85% or higher, so this ${low ? "needs work" : "is on track"}.`}
+                      >
+                        <div>
+                          <div className="mb-1.5 flex justify-between text-sm">
+                            <span className="text-neutral-700">{c.name}</span>
+                            <span className="font-semibold tabular-nums">{c.score}%</span>
+                          </div>
+                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
+                            <div
+                              className={`h-full rounded-full ${low ? "bg-[#F2B705]" : "bg-neutral-900"}`}
+                              style={{ width: `${c.score}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
-                          <div
-                            className={`h-full rounded-full ${low ? "bg-[#F2B705]" : "bg-neutral-900"}`}
-                            style={{ width: `${c.score}%` }}
-                          />
-                        </div>
-                      </div>
+                      </Tip>
                     );
                   })}
                 </div>
@@ -1827,22 +2112,28 @@ export default function Dashboard() {
                   {filteredBottlenecks.map((s) => {
                     const critical = s.failRate >= 20;
                     return (
-                      <div key={s.code}>
-                        <div className="mb-1.5 flex justify-between gap-3 text-sm">
-                          <span className="min-w-0 truncate text-neutral-700">
-                            <span className="font-medium text-neutral-900">{s.code}</span> · {s.name}
-                          </span>
-                          <span className={`shrink-0 font-semibold tabular-nums ${critical ? "text-[#8A1538]" : ""}`}>
-                            {s.failRate}%
-                          </span>
+                      <Tip
+                        key={s.code}
+                        className="block"
+                        text={`${s.failRate}% of the ${s.students} students in ${s.code} failed at midterm. ${critical ? "That is above the 20% limit." : "That is close to the 20% limit."}`}
+                      >
+                        <div>
+                          <div className="mb-1.5 flex justify-between gap-3 text-sm">
+                            <span className="min-w-0 truncate text-neutral-700">
+                              <span className="font-medium text-neutral-900">{s.code}</span> · {s.name}
+                            </span>
+                            <span className={`shrink-0 font-semibold tabular-nums ${critical ? "text-[#8A1538]" : ""}`}>
+                              {s.failRate}%
+                            </span>
+                          </div>
+                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
+                            <div
+                              className={`h-full rounded-full ${critical ? "bg-[#8A1538]" : "bg-[#F2B705]"}`}
+                              style={{ width: `${(s.failRate / 30) * 100}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
-                          <div
-                            className={`h-full rounded-full ${critical ? "bg-[#8A1538]" : "bg-[#F2B705]"}`}
-                            style={{ width: `${(s.failRate / 30) * 100}%` }}
-                          />
-                        </div>
-                      </div>
+                      </Tip>
                     );
                   })}
                   {filteredBottlenecks.length === 0 && (
@@ -2057,16 +2348,16 @@ export default function Dashboard() {
               <div className="flex h-2 overflow-hidden rounded-full bg-neutral-100">
                 <div className="bg-[#8A1538]" style={{ width: `${(sentimentCount.negative / feedbackTotal) * 100}%` }} />
                 <div className="bg-neutral-300" style={{ width: `${(sentimentCount.neutral / feedbackTotal) * 100}%` }} />
-                <div className="bg-neutral-900" style={{ width: `${(sentimentCount.positive / feedbackTotal) * 100}%` }} />
+                <div className="bg-[#15803D]" style={{ width: `${(sentimentCount.positive / feedbackTotal) * 100}%` }} />
               </div>
 
               <div role="tablist" className="-mx-1 mt-4 flex gap-x-4 overflow-x-auto px-1">
                 {([
-                  ["all", "All", feedbackTotal, null],
-                  ["negative", "Concerns", sentimentCount.negative, "bg-[#8A1538]"],
-                  ["neutral", "Neutral", sentimentCount.neutral, "bg-neutral-300"],
-                  ["positive", "Positive", sentimentCount.positive, "bg-neutral-900"],
-                ] as const).map(([id, label, count, dot]) => (
+                  ["all", "All", feedbackTotal, null, ""],
+                  ["negative", "Concerns", sentimentCount.negative, Frown, "text-[#C62828]"],
+                  ["neutral", "Neutral", sentimentCount.neutral, Meh, "text-neutral-500"],
+                  ["positive", "Positive", sentimentCount.positive, Smile, "text-[#15803D]"],
+                ] as const).map(([id, label, count, Face, tone]) => (
                   <button
                     key={id}
                     type="button"
@@ -2074,11 +2365,11 @@ export default function Dashboard() {
                     aria-selected={sentimentFilter === id}
                     onClick={() => setSentimentFilter(id)}
                     className={`flex shrink-0 items-center gap-1.5 border-b-2 pb-1.5 text-[13px] font-medium transition sm:text-sm ${sentimentFilter === id
-                        ? "border-neutral-900 text-neutral-900"
-                        : "border-transparent text-neutral-500 hover:text-neutral-900"
+                      ? "border-neutral-900 text-neutral-900"
+                      : "border-transparent text-neutral-500 hover:text-neutral-900"
                       }`}
                   >
-                    {dot && <span className={`h-2 w-2 rounded-full ${dot}`} />}
+                    {Face && <Face className={`h-4 w-4 ${tone}`} />}
                     {label} <span className="tabular-nums">{count}</span>
                   </button>
                 ))}
@@ -2086,19 +2377,27 @@ export default function Dashboard() {
             </div>
 
             {filteredFeedback.map((fb) => {
-              const rail =
-                fb.sentiment === "negative" ? "bg-[#8A1538]" : fb.sentiment === "positive" ? "bg-neutral-900" : "bg-neutral-300";
+              const face =
+                fb.sentiment === "negative"
+                  ? { Icon: Frown, bg: "bg-red-50", fg: "text-[#C62828]" }
+                  : fb.sentiment === "positive"
+                    ? { Icon: Smile, bg: "bg-green-50", fg: "text-[#15803D]" }
+                    : { Icon: Meh, bg: "bg-neutral-100", fg: "text-neutral-500" };
               const label =
                 fb.sentiment === "negative" ? "Concern" : fb.sentiment === "positive" ? "Positive" : "Neutral";
               return (
                 <article key={fb.comment} className="flex gap-3 rounded-2xl bg-white p-4">
-                  <span className={`w-1 shrink-0 rounded-full ${rail}`} />
-                  <div className="min-w-0">
+                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${face.bg}`}>
+                    <face.Icon className={`h-6 w-6 ${face.fg}`} />
+                  </span>
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-3">
                       <p className="text-sm font-semibold">{fb.category.replace(/ \(.*\)/, "")}</p>
-                      <span className="text-xs tabular-nums text-neutral-500">
-                        {label} · {fb.nlpScore > 0 ? `+${fb.nlpScore}` : fb.nlpScore}
-                      </span>
+                      <Tip align="right" text="Sentiment score from -1 (very negative) to +1 (very positive).">
+                        <span className={`text-xs tabular-nums ${face.fg}`}>
+                          {label} · {fb.nlpScore > 0 ? `+${fb.nlpScore}` : fb.nlpScore}
+                        </span>
+                      </Tip>
                     </div>
                     <p className="text-xs text-neutral-500">{fb.theme}</p>
                     <p className="mt-2.5 text-[15px] leading-relaxed text-neutral-800">&ldquo;{fb.comment}&rdquo;</p>
@@ -2179,8 +2478,8 @@ export default function Dashboard() {
                       onClick={() => setSelectedYearLevel(value)}
                       aria-pressed={selectedYearLevel === value}
                       className={`min-h-10 rounded-xl text-sm font-medium transition ${selectedYearLevel === value
-                          ? "bg-neutral-900 text-white"
-                          : "bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
+                        ? "bg-neutral-900 text-white"
+                        : "bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
                         }`}
                     >
                       {label}
@@ -2203,8 +2502,8 @@ export default function Dashboard() {
                       onClick={() => setSelectedCourseType(value)}
                       aria-pressed={selectedCourseType === value}
                       className={`min-h-10 rounded-xl text-sm font-medium transition ${selectedCourseType === value
-                          ? "bg-neutral-900 text-white"
-                          : "bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
+                        ? "bg-neutral-900 text-white"
+                        : "bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
                         }`}
                     >
                       {label}
@@ -2234,5 +2533,6 @@ export default function Dashboard() {
         </ModalShell>
       )}
     </div>
+    </>
   );
 }

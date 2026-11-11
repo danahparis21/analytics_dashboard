@@ -22,6 +22,22 @@ body {
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
+/* Loading screen animations */
+@keyframes logoFadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-logo-fade-in {
+  animation: logoFadeIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* ── EXACT PRINT SPECIFICATION FOR SINGLE-PAGE LONG BOND PAPER (8.5 x 13 in) ── */
 @page {
   size: 8.5in 13in;
