@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,8 +8,9 @@
   --spartan: #8a1538;
 }
 
-/* Subtle dot-grid background pattern */
+/* Subtle dot-grid background pattern with TalentTrack font */
 body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background-color: #f1f3f6;
   background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px);
   background-size: 24px 24px;
