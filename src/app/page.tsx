@@ -815,9 +815,14 @@ export default function Dashboard() {
   const [selectedCourseType, setSelectedCourseType] = useState("All Courses");
   const [selectedTrendTerm, setSelectedTrendTerm] = useState<string | null>(null);
 
+  // Sidebar collapsible state
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
   // Splash / Loading Screen (starts in red with logo fading in, then fades out to dashboard)
   const [isLoading, setIsLoading] = useState(true);
   const [isFading, setIsFading] = useState(false);
+  // showContent triggers entrance animations after splash disappears
+  const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
     const fadeTimer = setTimeout(() => {
@@ -826,9 +831,13 @@ export default function Dashboard() {
     const removeTimer = setTimeout(() => {
       setIsLoading(false);
     }, 2400);
+    const contentTimer = setTimeout(() => {
+      setShowContent(true);
+    }, 2550);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(removeTimer);
+      clearTimeout(contentTimer);
     };
   }, []);
 

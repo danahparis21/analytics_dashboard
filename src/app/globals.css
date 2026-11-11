@@ -38,6 +38,43 @@ body {
   animation: logoFadeIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* ── POST-SPLASH ENTRANCE ANIMATIONS ── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideRight {
+  from { opacity: 0; transform: translateX(-14px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes growWidth {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+.anim-enter {
+  opacity: 0;
+  animation: fadeSlideUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.anim-enter-d1  { animation-delay: 0.05s; }
+.anim-enter-d2  { animation-delay: 0.12s; }
+.anim-enter-d3  { animation-delay: 0.20s; }
+.anim-enter-d4  { animation-delay: 0.28s; }
+.anim-enter-d5  { animation-delay: 0.36s; }
+.anim-enter-d6  { animation-delay: 0.44s; }
+.anim-enter-d7  { animation-delay: 0.54s; }
+
+.anim-bar {
+  transform-origin: left center;
+  animation: growWidth 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.anim-bar-d1 { animation-delay: 0.1s; }
+.anim-bar-d2 { animation-delay: 0.2s; }
+.anim-bar-d3 { animation-delay: 0.3s; }
+.anim-bar-d4 { animation-delay: 0.4s; }
+
 /* ── EXACT PRINT SPECIFICATION FOR SINGLE-PAGE LONG BOND PAPER (8.5 x 13 in) ── */
 @page {
   size: 8.5in 13in;
