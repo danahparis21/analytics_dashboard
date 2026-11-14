@@ -51,11 +51,11 @@ const TERM_DATA_STORE: Record<string, TermData> = {
     facultyShortage: -3,
     isCurrentOrFuture: true,
     kpis: {
-      passingRate: { value: "91.4%", delta: "+1.8%", positive: true, num: 91.4 },
-      atRiskRate: { value: "8.3%", delta: "-2.1%", positive: true, num: 8.3 },
-      retentionRate: { value: "92.5%", delta: "+1.5%", positive: true, num: 92.5 },
-      seteScore: { value: "86.2%", delta: "+1.4%", positive: true, num: 86.2 },
-      attendanceRate: { value: "96.8%", delta: "+1.3%", positive: true, num: 96.8 },
+      passingRate: { value: "91.9%", delta: "+0.5%", positive: true, num: 91.9 },
+      atRiskRate: { value: "13.8%", delta: "-0.6%", positive: false, num: 13.8 },
+      retentionRate: { value: "92.9%", delta: "+0.4%", positive: true, num: 92.9 },
+      seteScore: { value: "86.8%", delta: "+0.6%", positive: true, num: 86.8 },
+      attendanceRate: { value: "97.1%", delta: "+0.3%", positive: true, num: 97.1 },
     },
     yearLevels: [
       { name: "1st Year", count: 430, percent: "30%", color: "#8a1538" },
@@ -90,7 +90,7 @@ const TERM_DATA_STORE: Record<string, TermData> = {
     isCurrentOrFuture: true,
     kpis: {
       passingRate: { value: "92.0%", delta: "+0.6%", positive: true, num: 92.0 },
-      atRiskRate: { value: "13.5%", delta: "-0.7%", positive: true, num: 13.5 },
+      atRiskRate: { value: "13.5%", delta: "-0.3%", positive: false, num: 13.5 },
       retentionRate: { value: "93.1%", delta: "+0.6%", positive: true, num: 93.1 },
       seteScore: { value: "89.2%", delta: "+0.6%", positive: true, num: 89.2 },
       attendanceRate: { value: "97.1%", delta: "+0.3%", positive: true, num: 97.1 },
@@ -327,6 +327,25 @@ const TERM_DATA_STORE: Record<string, TermData> = {
   },
 };
 
+// Term-over-term changes are computed from the numbers above, so cards and charts never contradict each other.
+(() => {
+  const lowerIsBetter = new Set<string>(["atRiskRate"]);
+  const keys = Object.keys(TERM_DATA_STORE).sort((a, b) => a.localeCompare(b));
+  keys.forEach((key, i) => {
+    const prev = i > 0 ? TERM_DATA_STORE[keys[i - 1]] : null;
+    (Object.keys(TERM_DATA_STORE[key].kpis) as Array<keyof TermData["kpis"]>).forEach((k) => {
+      const m = TERM_DATA_STORE[key].kpis[k];
+      if (!prev) {
+        m.delta = "Baseline";
+        return;
+      }
+      const diff = Number((m.num - prev.kpis[k].num).toFixed(1));
+      m.delta = `${diff > 0 ? "+" : ""}${diff.toFixed(1)}%`;
+      m.positive = lowerIsBetter.has(k) ? diff <= 0 : diff >= 0;
+    });
+  });
+})();
+
 // Historical Actual vs Forecast Series
 const ENROLLMENT_TIME_SERIES = [
   { term: "AY 2023–2024 Semester 1", short: "23-24 S1", actual: 1040, forecast: null, teachers: 30, sections: 28, gap: 0, isForecast: false, label: "Semester 1, AY 2023–2024" },
@@ -432,7 +451,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
     id: "CLUS-01",
     title: "Instructional Cluster 1 (Object-Oriented Programming)",
     courseCode: "CS 211",
-    instructorAlias: "Faculty Instructor A",
+    instructorAlias: "All sections (pooled)",
     courseType: "Major" as const,
     sections: 4,
     units: 18,
@@ -450,7 +469,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
     id: "CLUS-02",
     title: "Instructional Cluster 2 (Database Management System)",
     courseCode: "IT 211",
-    instructorAlias: "Faculty Instructor B",
+    instructorAlias: "All sections (pooled)",
     courseType: "Major" as const,
     sections: 4,
     units: 18,
@@ -468,7 +487,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
     id: "CLUS-03",
     title: "Instructional Cluster 3 (Mathematics in the Modern World)",
     courseCode: "GEd 102",
-    instructorAlias: "Faculty Instructor C",
+    instructorAlias: "All sections (pooled)",
     courseType: "GenEd" as const,
     sections: 5,
     units: 21,
@@ -486,7 +505,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
     id: "CLUS-04",
     title: "Instructional Cluster 4 (Web Systems and Technologies)",
     courseCode: "IT 314",
-    instructorAlias: "Faculty Instructor D",
+    instructorAlias: "All sections (pooled)",
     courseType: "Major" as const,
     sections: 4,
     units: 18,
@@ -504,7 +523,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
     id: "CLUS-05",
     title: "Instructional Cluster 5 (Systems Integration and Architecture)",
     courseCode: "IT 312",
-    instructorAlias: "Faculty Instructor E",
+    instructorAlias: "All sections (pooled)",
     courseType: "Major" as const,
     sections: 4,
     units: 18,
@@ -522,7 +541,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
     id: "CLUS-06",
     title: "Instructional Cluster 6 (Information Assurance and Security)",
     courseCode: "IT 323",
-    instructorAlias: "Faculty Instructor F",
+    instructorAlias: "All sections (pooled)",
     courseType: "Major" as const,
     sections: 4,
     units: 18,
@@ -540,7 +559,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
     id: "CLUS-07",
     title: "Instructional Cluster 7 (Application Development and Emerging Technologies)",
     courseCode: "IT 331",
-    instructorAlias: "Faculty Instructor G",
+    instructorAlias: "All sections (pooled)",
     courseType: "Major" as const,
     sections: 4,
     units: 18,
@@ -558,7 +577,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
     id: "CLUS-08",
     title: "Instructional Cluster 8 (Capstone Project)",
     courseCode: "IT 324, IT 411",
-    instructorAlias: "Faculty Instructor H",
+    instructorAlias: "All sections (pooled)",
     courseType: "Major" as const,
     sections: 4,
     units: 18,
@@ -591,6 +610,19 @@ const ANONYMIZED_FACULTY_ROSTER = [
     ],
   },
 ];
+
+// Sample response data per cluster (shown with every cluster SETE score)
+const CLUSTER_RESPONSE: Record<string, { rate: number; n: number }> = {
+  "CLUS-01": { rate: 82.4, n: 118 },
+  "CLUS-02": { rate: 79.1, n: 106 },
+  "CLUS-03": { rate: 86.0, n: 148 },
+  "CLUS-04": { rate: 88.3, n: 121 },
+  "CLUS-05": { rate: 47.5, n: 57 },
+  "CLUS-06": { rate: 81.7, n: 103 },
+  "CLUS-07": { rate: 84.2, n: 112 },
+  "CLUS-08": { rate: 77.6, n: 94 },
+  "CLUS-09": { rate: 80.0, n: 90 },
+};
 
 // Anonymized Student Qualitative Comments with NLP Sentiment Classification
 const ANONYMIZED_STUDENT_FEEDBACK = [
@@ -653,6 +685,29 @@ function deltaTone(delta: string, higherIsBetter = true) {
   return good ? "font-medium text-[#15803D]" : "font-medium text-[#C62828]";
 }
 
+// ─── SEARCH: sections the search bar can jump to ────────────────────────────
+
+type SearchTarget = {
+  id: string;
+  label: string;
+  hint: string;
+  keywords: string[];
+  kind: "scroll" | "plan" | "comments" | "formulas";
+};
+
+const SEARCH_TARGETS: SearchTarget[] = [
+  { id: "kpi-cards", label: "KPI cards", hint: "Section", keywords: ["passing", "at-risk", "retention", "attendance", "goal", "target", "kpi"], kind: "scroll" },
+  { id: "trend-chart", label: "Enrollment trend", hint: "Section", keywords: ["students", "forecast", "chart", "semester", "growth"], kind: "scroll" },
+  { id: "year-levels", label: "Students by year level", hint: "Section", keywords: ["donut", "cohort", "1st", "2nd", "3rd", "4th"], kind: "scroll" },
+  { id: "high-failure-sections", label: "Sections with high failure", hint: "Section", keywords: ["flagged", "failing", "midterm"], kind: "scroll" },
+  { id: "teaching-load", label: "Teaching load", hint: "Section", keywords: ["faculty", "teachers", "units", "clusters", "staffing", "shortage"], kind: "scroll" },
+  { id: "sete-scores", label: "SETE scores", hint: "Section", keywords: ["evaluation", "teaching", "effectiveness", "response", "pacing", "clarity", "fairness", "consultation", "syllabus"], kind: "scroll" },
+  { id: "high-failure-courses", label: "High-failure courses", hint: "Section", keywords: ["bottleneck", "courses", "fail"], kind: "scroll" },
+  { id: "plan", label: "Action plan", hint: "Opens window", keywords: ["alerts", "warnings", "interventions", "steps"], kind: "plan" },
+  { id: "comments", label: "Student comments", hint: "Opens window", keywords: ["feedback", "sentiment", "nlp"], kind: "comments" },
+  { id: "formulas", label: "KPI formulas", hint: "Opens window", keywords: ["definitions", "computation"], kind: "formulas" },
+];
+
 // ─── SMALL SHARED PIECES ─────────────────────────────────────────────────────
 
 // Short "Insight" bubble that shows when you hover its parent (needs class "group/tip relative" on the parent)
@@ -706,6 +761,8 @@ function ChartTooltip({ active, payload, label }: any) {
   } else if (fullTerm.includes("2025–2026")) {
     note = "Past term. Staffing was balanced.";
   }
+
+  if (isKpi && fullTerm.includes("2026–2027 Semester 2")) note += " Projected, semester not yet complete.";
 
   return (
     <div className="max-w-[220px] rounded-lg bg-neutral-900 px-3 py-2 text-xs text-white shadow-lg">
@@ -807,6 +864,7 @@ export default function Dashboard() {
   const [sentimentFilter, setSentimentFilter] = useState<"all" | "positive" | "negative" | "neutral">("all");
   const [selectedFacultyId, setSelectedFacultyId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
 
   // Linked Global Filters
   const [selectedYear, setSelectedYear] = useState("AY 2026–2027");
@@ -891,6 +949,7 @@ export default function Dashboard() {
     let seteNum = baseTermData.kpis.seteScore.num;
     let attendanceNum = baseTermData.kpis.attendanceRate.num;
 
+    const filteredNow = selectedYearLevel !== "All Year Levels" || selectedCourseType !== "All Courses";
     let deltaPass = baseTermData.kpis.passingRate.delta;
     let deltaRisk = baseTermData.kpis.atRiskRate.delta;
 
@@ -971,31 +1030,31 @@ export default function Dashboard() {
       kpis: {
         passingRate: {
           value: `${passingNum.toFixed(1)}%`,
-          delta: deltaPass,
+          delta: filteredNow ? "—" : deltaPass,
           positive: passingNum >= 90,
           num: passingNum,
         },
         atRiskRate: {
           value: `${atRiskNum.toFixed(1)}%`,
-          delta: deltaRisk,
+          delta: filteredNow ? "—" : deltaRisk,
           positive: atRiskNum <= 10,
           num: atRiskNum,
         },
         retentionRate: {
           value: `${retentionNum.toFixed(1)}%`,
-          delta: baseTermData.kpis.retentionRate.delta,
+          delta: filteredNow ? "—" : baseTermData.kpis.retentionRate.delta,
           positive: retentionNum >= 90,
           num: retentionNum,
         },
         seteScore: {
           value: `${seteNum.toFixed(1)}%`,
-          delta: baseTermData.kpis.seteScore.delta,
+          delta: filteredNow ? "—" : baseTermData.kpis.seteScore.delta,
           positive: seteNum >= 85,
           num: seteNum,
         },
         attendanceRate: {
           value: `${attendanceNum.toFixed(1)}%`,
-          delta: baseTermData.kpis.attendanceRate.delta,
+          delta: filteredNow ? "—" : baseTermData.kpis.attendanceRate.delta,
           positive: attendanceNum >= 95,
           num: attendanceNum,
         },
@@ -1003,11 +1062,55 @@ export default function Dashboard() {
     };
   }, [baseTermData, selectedYearLevel, selectedCourseType]);
 
+  // The current school year's Semester 2 has not started, so it cannot be selected
+  const semester2Locked = TERM_DATA_STORE[`${selectedYear}_Semester 1`]?.isCurrentOrFuture === true;
+  const isFilteredView = selectedYearLevel !== "All Year Levels" || selectedCourseType !== "All Courses";
+  // Semester 2 of the current year has not finished yet, so its figures are projections
+  const isProjected = baseTermData.isCurrentOrFuture && selectedSemester === "Semester 2";
+
+  // Year-over-year enrollment change, computed from the enrollment series
+  const yoyChange = useMemo(() => {
+    const m = selectedYear.match(/(\d{4})–(\d{4})/);
+    if (!m) return null;
+    const prev = ENROLLMENT_TIME_SERIES.find(p => p.term === `AY ${Number(m[1]) - 1}–${Number(m[2]) - 1} ${selectedSemester}`);
+    const cur = ENROLLMENT_TIME_SERIES.find(p => p.term === `${selectedYear} ${selectedSemester}`);
+    if (!prev || !cur) return null;
+    const c = cur.actual ?? cur.forecast;
+    const pv = prev.actual ?? prev.forecast;
+    if (!c || !pv) return null;
+    return ((c - pv) / pv) * 100;
+  }, [selectedYear, selectedSemester]);
+  const yoyText =
+    isFilteredView || yoyChange === null
+      ? ""
+      : ` That is ${Math.abs(yoyChange).toFixed(1)}% ${yoyChange >= 0 ? "more" : "fewer"} than the same semester last year.`;
+
   // Donut chart distribution
   const filteredYearLevels = useMemo(() => {
     if (selectedYearLevel === "All Year Levels") return baseTermData.yearLevels;
     return baseTermData.yearLevels.filter(y => y.name.toLowerCase().includes(selectedYearLevel.toLowerCase()));
   }, [baseTermData.yearLevels, selectedYearLevel]);
+
+  // ── Search: jump to a section, and still filter courses ──
+  const searchText = searchQuery.trim().toLowerCase();
+  const sectionMatches = useMemo(() => {
+    if (searchText.length < 2) return [] as SearchTarget[];
+    const parts = searchText.split(/\s+/);
+    return SEARCH_TARGETS.filter((t) => {
+      const words = `${t.label} ${t.keywords.join(" ")}`.toLowerCase().split(/[\s/-]+/);
+      return parts.every((part) => words.some((w) => w.startsWith(part)));
+    });
+  }, [searchText]);
+  const hasCourseMatch = useMemo(() => {
+    if (!searchText) return false;
+    return (
+      baseTermData.bottleneckCourses.some((c) => c.code.toLowerCase().includes(searchText) || c.name.toLowerCase().includes(searchText)) ||
+      baseTermData.flaggedSections.some((x) => x.name.toLowerCase().includes(searchText) || x.course.toLowerCase().includes(searchText)) ||
+      ANONYMIZED_FACULTY_ROSTER.some((f) => f.title.toLowerCase().includes(searchText))
+    );
+  }, [searchText, baseTermData]);
+  // If the text names a section (like "SETE") and no course, leave the lists unfiltered
+  const effectiveQuery = sectionMatches.length > 0 && !hasCourseMatch ? "" : searchQuery;
 
   // Secondary filters on Bottlenecks & Flagged Sections
   const filteredBottlenecks = useMemo(() => {
@@ -1017,12 +1120,12 @@ export default function Dashboard() {
     } else if (selectedCourseType === "General Education") {
       list = list.filter(c => c.courseType === "GenEd");
     }
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
+    if (effectiveQuery.trim()) {
+      const q = effectiveQuery.toLowerCase();
       list = list.filter(c => c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q));
     }
     return list;
-  }, [baseTermData.bottleneckCourses, selectedCourseType, searchQuery]);
+  }, [baseTermData.bottleneckCourses, selectedCourseType, effectiveQuery]);
 
   const filteredSections = useMemo(() => {
     let list = baseTermData.flaggedSections;
@@ -1035,12 +1138,12 @@ export default function Dashboard() {
       const lvl = selectedYearLevel.charAt(0);
       list = list.filter(s => s.name.startsWith(`BSIT ${lvl}-`));
     }
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
+    if (effectiveQuery.trim()) {
+      const q = effectiveQuery.toLowerCase();
       list = list.filter(s => s.name.toLowerCase().includes(q) || s.course.toLowerCase().includes(q));
     }
     return list;
-  }, [baseTermData.flaggedSections, selectedCourseType, selectedYearLevel, searchQuery]);
+  }, [baseTermData.flaggedSections, selectedCourseType, selectedYearLevel, effectiveQuery]);
 
   const filteredFaculty = useMemo(() => {
     let list = ANONYMIZED_FACULTY_ROSTER;
@@ -1049,18 +1152,20 @@ export default function Dashboard() {
     } else if (selectedCourseType === "General Education") {
       list = list.filter(f => f.courseType === "GenEd");
     }
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
+    if (effectiveQuery.trim()) {
+      const q = effectiveQuery.toLowerCase();
       list = list.filter(f => f.title.toLowerCase().includes(q));
     }
     return list;
-  }, [selectedCourseType, searchQuery]);
+  }, [selectedCourseType, effectiveQuery]);
 
   // Selected faculty cluster for individual SETE inspection
   const selectedFaculty = useMemo(() => {
     if (!selectedFacultyId) return null;
     return ANONYMIZED_FACULTY_ROSTER.find(f => f.id === selectedFacultyId) ?? null;
   }, [selectedFacultyId]);
+
+  const selectedResponse = selectedFaculty ? CLUSTER_RESPONSE[selectedFaculty.id] ?? null : null;
 
   const displayedSeteDimensions = useMemo(() => {
     if (selectedFaculty) return selectedFaculty.seteDimensions;
@@ -1098,6 +1203,7 @@ export default function Dashboard() {
     if (!def) return null;
 
     const trendData = Object.entries(TERM_DATA_STORE)
+      .filter(([key, data]) => !(data.isCurrentOrFuture && key.endsWith("Semester 2")))
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([key, data]) => {
         const [y, s] = key.split("_");
@@ -1121,7 +1227,7 @@ export default function Dashboard() {
     return {
       def,
       title: `${def.name} by semester`,
-      subtitle: `Goal ${def.target} (dashed line)`,
+      subtitle: `Goal ${def.target} (dashed line)${selectedYearLevel !== "All Year Levels" || selectedCourseType !== "All Courses" ? " · Program-wide, filters not applied" : ""}`,
       data: trendData,
       currentValue: currentVal.value,
       currentDelta: currentVal.delta,
@@ -1199,6 +1305,8 @@ export default function Dashboard() {
     alerts.push(`${breachedSections.length} section${breachedSections.length === 1 ? "" : "s"} above 20% failure`);
   if (shortCount > 0)
     alerts.push(`${shortCount} teacher${shortCount === 1 ? "" : "s"} short for next semester`);
+  if (termData.kpis.atRiskRate.num > 10)
+    alerts.push(`At-risk rate ${termData.kpis.atRiskRate.value} is above the 10% goal`);
 
   const sentimentCount = {
     negative: ANONYMIZED_STUDENT_FEEDBACK.filter(f => f.sentiment === "negative").length,
@@ -1217,15 +1325,46 @@ export default function Dashboard() {
     { key: "formulas", label: "Formulas", Icon: BookOpen, badge: null as string | null, onClick: () => setModalKpi(KPI_DEFINITIONS[0]) },
   ];
 
+  const jumpTo = (t: SearchTarget) => {
+    setSearchOpen(false);
+    setSearchQuery("");
+    if (t.kind === "plan") {
+      setShowIntervention(true);
+      return;
+    }
+    if (t.kind === "comments") {
+      setShowFeedbackModal(true);
+      return;
+    }
+    if (t.kind === "formulas") {
+      setModalKpi(KPI_DEFINITIONS[0]);
+      return;
+    }
+    const el = document.getElementById(t.id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    el.classList.add("ring-2", "ring-[#8A1538]/60");
+    window.setTimeout(() => el.classList.remove("ring-2", "ring-[#8A1538]/60"), 1800);
+  };
+
   const searchBox = (
     <div className="relative">
       <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
       <input
         type="text"
-        aria-label="Search courses or teachers"
-        placeholder="Search"
+        aria-label="Search courses or sections"
+        placeholder="Search courses or sections"
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        onChange={(e) => {
+          setSearchQuery(e.target.value);
+          setSearchOpen(true);
+        }}
+        onFocus={() => setSearchOpen(true)}
+        onBlur={() => setSearchOpen(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && sectionMatches[0]) jumpTo(sectionMatches[0]);
+          if (e.key === "Escape") setSearchOpen(false);
+        }}
         className="w-full rounded-xl bg-neutral-100 py-2.5 pl-9 pr-8 text-sm text-neutral-900 placeholder-neutral-500 outline-none focus:ring-2 focus:ring-neutral-900/20"
       />
       {searchQuery && (
@@ -1238,6 +1377,33 @@ export default function Dashboard() {
           <X className="h-3.5 w-3.5" />
         </button>
       )}
+      {searchOpen && searchText.length >= 2 && (
+        <div className="absolute left-0 right-0 top-full z-40 mt-1.5 overflow-hidden rounded-xl border border-neutral-200 bg-white p-1 shadow-lg print:hidden">
+          {sectionMatches.length > 0 && (
+            <p className="px-2.5 pb-1 pt-1.5 text-[11px] font-medium text-neutral-400">Jump to</p>
+          )}
+          {sectionMatches.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => jumpTo(t)}
+              className="flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-neutral-800 transition hover:bg-neutral-100"
+            >
+              <span className="truncate">{t.label}</span>
+              <span className="shrink-0 text-[11px] text-neutral-400">{t.hint}</span>
+            </button>
+          ))}
+          {hasCourseMatch && (
+            <p className="px-2.5 py-1.5 text-xs text-neutral-500">
+              Also filtering courses and sections for “{searchQuery.trim()}”.
+            </p>
+          )}
+          {sectionMatches.length === 0 && !hasCourseMatch && (
+            <p className="px-2.5 py-2 text-xs text-neutral-500">No matches. Try SETE, action plan, or a course code like CS 211.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 
@@ -1248,7 +1414,18 @@ export default function Dashboard() {
     const met = def.higherIsBetter ? metric.num >= def.targetNum : metric.num <= def.targetNum;
     const Icon = KPI_ICONS[def.id];
     const changeText = Number.isNaN(parseFloat(metric.delta)) ? "" : ` Change from last semester: ${metric.delta}.`;
-    const tip = `${KPI_INSIGHTS[def.id](metric.value)}${changeText} ${met ? "Goal met." : "Goal missed."}`;
+    // Gap to goal, in percentage points (the main number on each card)
+    const gap = Number((metric.num - def.targetNum).toFixed(1));
+    const gapAbs = Math.abs(gap).toFixed(1);
+    const gapText =
+      gap === 0
+        ? "On goal"
+        : def.higherIsBetter
+          ? `${gapAbs} pts ${gap > 0 ? "above" : "below"} goal`
+          : `${gapAbs} pts ${gap > 0 ? "over" : "under"} goal`;
+    const gapShort = gap === 0 ? "On goal" : `${gap > 0 ? "+" : "-"}${gapAbs} pts`;
+    const gapTone = met ? "font-medium text-[#15803D]" : "font-medium text-[#C62828]";
+    const tip = `${KPI_INSIGHTS[def.id](metric.value)} ${met ? "Goal met" : "Goal missed"} (${gapText}).${changeText}`;
     return (
       <div
         key={def.id}
@@ -1273,9 +1450,9 @@ export default function Dashboard() {
           </span>
         </button>
         <span
-          className={`pointer-events-none absolute left-2.5 top-2 text-[11px] tabular-nums sm:left-3 sm:top-2.5 sm:text-xs ${deltaTone(metric.delta, def.higherIsBetter)}`}
+          className={`pointer-events-none absolute left-2.5 top-2 text-[11px] tabular-nums sm:left-3 sm:top-2.5 sm:text-xs ${gapTone}`}
         >
-          {metric.delta}
+          {gapShort}
         </span>
         <button
           type="button"
@@ -1300,9 +1477,8 @@ export default function Dashboard() {
       {/* ══════════ FULLSCREEN LOADING SPLASH (Spartan Crimson red + logo fade-in) ══════════ */}
       {isLoading && (
         <div
-          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#8A1538] transition-opacity duration-700 ease-in-out ${
-            isFading ? "opacity-0 pointer-events-none" : "opacity-100"
-          }`}
+          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#8A1538] transition-opacity duration-700 ease-in-out ${isFading ? "opacity-0 pointer-events-none" : "opacity-100"
+            }`}
           aria-hidden="true"
         >
           <div className="flex flex-col items-center text-center px-6">
@@ -1333,1215 +1509,1271 @@ export default function Dashboard() {
 
       <div className="min-h-screen bg-[#E5E6E9] font-sans text-neutral-900 md:flex">
 
-        {/* ══════════ SIDEBAR (desktop) ══════════ */}
-        <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col bg-white p-4 md:flex print:hidden">
-          <div className="flex items-center gap-2.5 px-1 pb-5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white border border-neutral-200/90 p-0.5 overflow-hidden shrink-0 shadow-xs">
-              <img src="/spartalytics.png" alt="Spartalytics" className="h-full w-full object-contain" />
-            </div>
-            <div>
-              <p className="text-[15px] font-normal tracking-wider leading-tight">
-                <span className="font-black">SPARTA</span>LYTICS
-              </p>
-              <p className="text-xs text-neutral-500">BatStateU · CICS ARASOF</p>
-            </div>
-          </div>
-
-        <div className="mb-4">{searchBox}</div>
-
-        <nav className="flex-1 space-y-1">
-          {navItems.map(({ key, label, Icon, badge, onClick }) => {
-            const isCurrent = key === "dash";
-            return (
+        {/* ══════════ SIDEBAR (desktop, closable) ══════════ */}
+        <aside
+          aria-label="Sidebar"
+          aria-hidden={!sidebarOpen}
+          className={`sticky top-0 hidden h-screen shrink-0 overflow-hidden bg-white transition-[width] duration-300 ease-out md:block print:hidden ${sidebarOpen ? "w-60" : "w-0"}`}
+        >
+          <div className={`flex h-full w-60 flex-col overflow-y-auto p-4 ${sidebarOpen ? "" : "invisible"}`}>
+            {/* Logo + close button */}
+            <div className="flex items-center justify-between gap-2 px-1 pb-4">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-neutral-200/90 bg-white p-0.5 shadow-xs">
+                  <img src="/spartalytics.png" alt="Spartalytics" className="h-full w-full object-contain" />
+                </div>
+                <div className="min-w-0">
+                  <p className="whitespace-nowrap text-[13px] font-normal leading-tight tracking-wide">
+                    <span className="font-black">SPARTA</span>LYTICS
+                  </p>
+                  <p className="truncate text-xs text-neutral-500">CICS ARASOF</p>
+                </div>
+              </div>
               <button
-                key={key}
                 type="button"
-                onClick={onClick}
-                className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm font-medium transition ${isCurrent ? "bg-[#8A1538] text-white" : "text-neutral-700 hover:bg-neutral-100"
-                  }`}
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Close sidebar"
+                title="Close sidebar"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-neutral-600 transition hover:bg-neutral-100"
               >
-                <span className="flex items-center gap-2.5">
-                  <Icon className="h-4 w-4" />
-                  {label}
+                <Menu className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Profile */}
+            <div className="flex flex-col items-center border-b border-neutral-100 px-2 pb-5 pt-2 text-center">
+              <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-[#8A1538]/10 ring-4 ring-[#8A1538]/10">
+                <User className="h-9 w-9 text-[#8A1538]" />
+              </div>
+              <p className="mt-3 text-sm font-bold text-[#8A1538]">Program Chair</p>
+              <p className="text-[11px] leading-snug text-neutral-500">BS Information Technology</p>
+            </div>
+
+            <div className="mt-4">{searchBox}</div>
+
+            <p className="mt-5 border-b border-neutral-100 px-1 pb-2 text-sm font-bold text-neutral-900">BSIT Program</p>
+
+            <nav className="mt-3 flex-1 space-y-1">
+              {navItems.map(({ key, label, Icon, badge, onClick }) => {
+                const isCurrent = key === "dash";
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={onClick}
+                    className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm font-medium transition ${isCurrent ? "bg-[#8A1538] text-white" : "text-neutral-700 hover:bg-neutral-100"
+                      }`}
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <Icon className="h-4 w-4" />
+                      {label}
+                    </span>
+                    {badge && (
+                      <span className={`rounded-full px-2 py-0.5 text-xs ${isCurrent ? "bg-white/20 text-white" : "bg-neutral-100 text-neutral-600"}`}>{badge}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        </aside>
+
+        {/* ══════════ MAIN ══════════ */}
+        <main className="flex min-w-0 flex-1 flex-col pb-20 md:pb-8">
+
+          {/* Header */}
+          <header className="sticky top-0 z-20 bg-[#E5E6E9]/90 px-3 pb-2 pt-3 backdrop-blur sm:px-6 md:pt-6">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                {!sidebarOpen && (
+                  <button
+                    type="button"
+                    onClick={() => setSidebarOpen(true)}
+                    aria-label="Open sidebar"
+                    title="Open sidebar"
+                    className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-neutral-700 transition hover:bg-neutral-50 md:flex print:hidden"
+                  >
+                    <Menu className="h-4 w-4" />
+                  </button>
+                )}
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-neutral-200/90 md:hidden p-1 overflow-hidden shadow-xs">
+                  <img src="/spartalytics.png" alt="Spartalytics" className="h-full w-full object-contain" />
+                </div>
+                <div className="min-w-0">
+                  <h1 className="text-xl font-semibold leading-tight sm:text-2xl">Dashboard</h1>
+                  <p className="truncate text-xs text-neutral-600 sm:text-sm">
+                    <span className="hidden sm:inline">BS Information Technology · </span>
+                    {selectedSemester}, {selectedYear}
+                    {isProjected && " · Projected"}
+                    {selectedYearLevel !== "All Year Levels" && ` · ${selectedYearLevel}`}
+                    {selectedCourseType !== "All Courses" &&
+                      ` · ${selectedCourseType.includes("Major") ? "Majors" : "Gen Ed"}`}
+                    {isFilteredView && " · Sample estimates"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-2 print:hidden">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  aria-label="Export report"
+                  title="Export report"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-neutral-700 transition hover:bg-neutral-50"
+                >
+                  <Printer className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowFilterModal(true)}
+                  className="relative flex h-10 items-center gap-2 rounded-xl bg-neutral-900 px-3.5 text-sm font-medium text-white transition hover:bg-neutral-700"
+                >
+                  <Filter className="h-4 w-4" />
+                  <span className="hidden sm:inline">Filters</span>
+                  {activeFilterCount > 0 && (
+                    <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#8A1538] px-1 text-[11px] font-semibold text-white">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <div className="flex-1 space-y-3 px-3 pt-1 sm:space-y-4 sm:px-6">
+
+            <div className="md:hidden print:hidden">{searchBox}</div>
+
+            {/* ── Welcome + totals (Enhanced Hero Section with Background Watermark & Rich Gradient) ── */}
+            <section className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-12">
+              <div className="col-span-2 relative flex flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br from-[#8A1538] via-[#73102C] to-[#480718] p-5 sm:p-6 text-white lg:col-span-6 shadow-xs border border-[#8A1538]/30 group">
+                {/* Background Logo Watermark */}
+                <div className="pointer-events-none absolute -bottom-7 -right-5 select-none opacity-[0.13] transition-all duration-700 ease-out group-hover:scale-105 group-hover:opacity-[0.18]">
+                  <img
+                    src="/spartalytics_white.png"
+                    alt=""
+                    className="h-60 w-60 object-contain"
+                  />
+                </div>
+
+                {/* Decorative radial glows */}
+                <div className="pointer-events-none absolute -top-10 -right-10 h-44 w-44 rounded-full bg-rose-400/10 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-10 -left-10 h-36 w-36 rounded-full bg-black/25 blur-2xl" />
+
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-200 backdrop-blur-xs border border-white/15">
+                      BSIT Decision Support
+                    </span>
+                    <span className="text-[11px] font-medium text-rose-200/80 hidden sm:inline">
+                      CICS · ARASOF
+                    </span>
+                  </div>
+
+                  <h2 className="mt-2.5 text-xl font-normal sm:text-2xl tracking-tight">
+                    Welcome to <span className="font-black">SPARTA</span>LYTICS!
+                  </h2>
+                  <p className="mt-1 text-xs sm:text-sm text-rose-100/90 font-normal">
+                    Here is how the BSIT program is currently performing.
+                  </p>
+                  <p className="mt-1 text-[11px] sm:text-xs text-rose-100/70 font-normal">
+                    Built for the BSIT Program Chair to plan sections, staffing, and teaching support.
+                  </p>
+
+                  <div className="mt-4 space-y-1.5 border-t border-white/15 pt-3.5">
+                    {alerts.length > 0 ? (
+                      alerts.map((text) => (
+                        <button
+                          key={text}
+                          type="button"
+                          onClick={() => setShowIntervention(true)}
+                          className="flex w-full items-center gap-2.5 rounded-lg py-1 text-left text-xs sm:text-sm transition hover:text-white/80 cursor-pointer"
+                        >
+                          <span className="h-2 w-2 shrink-0 rounded-full bg-[#F2B705] ring-2 ring-[#F2B705]/30 animate-pulse" />
+                          <span className="font-medium text-white">{text}</span>
+                        </button>
+                      ))
+                    ) : (
+                      <p className="text-xs sm:text-sm text-rose-200">No active alerts right now.</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="relative z-10 mt-5 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowIntervention(true)}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-rose-50 hover:shadow-md cursor-pointer print:hidden"
+                  >
+                    <span>See action plan</span>
+                    <ChevronRight className="h-4 w-4 text-neutral-600" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="group/tip relative flex flex-col items-center justify-center rounded-2xl bg-white p-4 text-center lg:col-span-3">
+                <span className="mb-2.5 hidden h-10 w-10 items-center justify-center rounded-full bg-neutral-100 text-neutral-600 sm:flex">
+                  <Users className="h-5 w-5" />
                 </span>
-                {badge && (
-                  <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600">{badge}</span>
-                )}
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className="mt-auto flex items-center gap-2.5 border-t border-neutral-100 px-1 pt-4">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-700">
-            PC
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium">Program Chair</p>
-            <p className="truncate text-xs text-neutral-500">BS Information Technology</p>
-          </div>
-        </div>
-      </aside>
-
-      {/* ══════════ MAIN ══════════ */}
-      <main className="flex min-w-0 flex-1 flex-col pb-20 md:pb-8">
-
-        {/* Header */}
-        <header className="sticky top-0 z-20 bg-[#E5E6E9]/90 px-3 pb-2 pt-3 backdrop-blur sm:px-6 md:pt-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-neutral-200/90 md:hidden p-1 overflow-hidden shadow-xs">
-                <img src="/spartalytics.png" alt="Spartalytics" className="h-full w-full object-contain" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-xl font-semibold leading-tight sm:text-2xl">Dashboard</h1>
-                <p className="truncate text-xs text-neutral-600 sm:text-sm">
-                  <span className="hidden sm:inline">BS Information Technology · </span>
-                  {selectedSemester}, {selectedYear}
-                  {selectedYearLevel !== "All Year Levels" && ` · ${selectedYearLevel}`}
-                  {selectedCourseType !== "All Courses" &&
-                    ` · ${selectedCourseType.includes("Major") ? "Majors" : "Gen Ed"}`}
+                <p className="text-3xl font-semibold tabular-nums tracking-tight sm:text-4xl">
+                  {termData.totalEnrolled.toLocaleString()}
                 </p>
-              </div>
-            </div>
-
-            <div className="flex shrink-0 items-center gap-2 print:hidden">
-              {/* Profile Pill: BSIT Program Chair */}
-              <div className="hidden sm:flex items-center gap-2 rounded-xl bg-white px-3 py-1.5 border border-neutral-200/90 shadow-2xs">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#8A1538] text-[11px] font-bold text-white shadow-xs">
-                  PC
-                </div>
-                <div className="min-w-0 text-left">
-                  <p className="truncate text-xs font-bold text-neutral-900 leading-tight">Program Chair</p>
-                  <p className="truncate text-[10.5px] text-neutral-500 font-medium">BS Information Technology</p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => window.print()}
-                aria-label="Export report"
-                title="Export report"
-                className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-neutral-700 transition hover:bg-neutral-50"
-              >
-                <Printer className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowFilterModal(true)}
-                className="relative flex h-10 items-center gap-2 rounded-xl bg-neutral-900 px-3.5 text-sm font-medium text-white transition hover:bg-neutral-700"
-              >
-                <Filter className="h-4 w-4" />
-                <span className="hidden sm:inline">Filters</span>
-                {activeFilterCount > 0 && (
-                  <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#8A1538] px-1 text-[11px] font-semibold text-white">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </button>
-            </div>
-          </div>
-        </header>
-
-        <div className="flex-1 space-y-3 px-3 pt-1 sm:space-y-4 sm:px-6">
-
-          <div className="md:hidden print:hidden">{searchBox}</div>
-
-          {/* ── Welcome + totals (Enhanced Hero Section with Background Watermark & Rich Gradient) ── */}
-          <section className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-12">
-            <div className="col-span-2 relative flex flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br from-[#8A1538] via-[#73102C] to-[#480718] p-5 sm:p-6 text-white lg:col-span-6 shadow-xs border border-[#8A1538]/30 group">
-              {/* Background Logo Watermark */}
-              <div className="pointer-events-none absolute -bottom-7 -right-5 select-none opacity-[0.13] transition-all duration-700 ease-out group-hover:scale-105 group-hover:opacity-[0.18]">
-                <img
-                  src="/spartalytics_white.png"
-                  alt=""
-                  className="h-60 w-60 object-contain"
+                <p className="mt-1.5 text-sm text-neutral-700">Total students</p>
+                <p className="mt-0.5 text-xs text-neutral-500">
+                  {isFilteredView ? (
+                    "Selected group"
+                  ) : yoyChange === null ? (
+                    "First year on record"
+                  ) : (
+                    <>
+                      <span className={`font-medium ${yoyChange >= 0 ? "text-[#15803D]" : "text-[#C62828]"}`}>
+                        {yoyChange >= 0 ? "+" : ""}{yoyChange.toFixed(1)}%
+                      </span>{" "}
+                      from last year{isProjected ? " (forecast)" : ""}
+                    </>
+                  )}
+                </p>
+                <TipBubble
+                  text={`${termData.totalEnrolled.toLocaleString()} students ${isProjected ? "are expected to enroll" : "are enrolled"} this semester.${yoyText}`}
                 />
               </div>
 
-              {/* Decorative radial glows */}
-              <div className="pointer-events-none absolute -top-10 -right-10 h-44 w-44 rounded-full bg-rose-400/10 blur-3xl" />
-              <div className="pointer-events-none absolute -bottom-10 -left-10 h-36 w-36 rounded-full bg-black/25 blur-2xl" />
+              <div className="group/tip relative flex flex-col items-center justify-center rounded-2xl bg-white p-4 text-center lg:col-span-3">
+                <span className="mb-2.5 hidden h-10 w-10 items-center justify-center rounded-full bg-neutral-100 text-neutral-600 sm:flex">
+                  <Briefcase className="h-5 w-5" />
+                </span>
+                <p className="text-3xl font-semibold tabular-nums tracking-tight sm:text-4xl">{termData.availableFaculty}</p>
+                <p className="mt-1.5 text-sm text-neutral-700">Total teachers</p>
+                <p className="mt-0.5 text-xs text-neutral-500">{termData.availableFaculty * 3} units</p>
+                <TipBubble
+                  text={`${termData.availableFaculty} regular teachers can cover ${termData.availableFaculty} sections (${termData.availableFaculty * 3} units). Extra sections need part-time teachers.`}
+                />
+              </div>
+            </section>
 
-              <div className="relative z-10">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-200 backdrop-blur-xs border border-white/15">
-                    BSIT Decision Support
-                  </span>
-                  <span className="text-[11px] font-medium text-rose-200/80 hidden sm:inline">
-                    CICS · ARASOF
-                  </span>
+            {/* ── 5 main KPIs ── */}
+            <section id="kpi-cards" className="scroll-mt-24 rounded-2xl">
+              <div className="grid gap-3 lg:grid-cols-5">
+                {kpiGroups.map((group) => (
+                  <div key={group.title} className={group.span}>
+                    <div className={`${group.bar} rounded-xl px-4 py-2.5 text-center text-sm font-semibold text-white sm:py-3 sm:text-[15px]`}>
+                      {group.title}
+                    </div>
+                    <div className={`mt-2 grid gap-2 sm:gap-2.5 ${group.cols}`}>
+                      {KPI_DEFINITIONS.filter((d) => group.ids.includes(d.id)).map(renderKpiCard)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-2 px-1 text-xs text-neutral-600 print:hidden">Select a card to see its trend.</p>
+            </section>
+
+            {/* ── Trend chart ── */}
+            <section id="trend-chart" className="scroll-mt-24 rounded-2xl bg-white p-4 sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <h3 className="text-base font-semibold sm:text-lg">
+                    {activeKpiConfig ? activeKpiConfig.title : "Enrollment trend"}
+                  </h3>
+                  <p className="text-sm text-neutral-500">
+                    {activeKpiConfig ? activeKpiConfig.subtitle : "Students per semester, with forecast"}
+                  </p>
                 </div>
 
-                <h2 className="mt-2.5 text-xl font-normal sm:text-2xl tracking-tight">
-                  Welcome to <span className="font-black">SPARTA</span>LYTICS!
-                </h2>
-                <p className="mt-1 text-xs sm:text-sm text-rose-100/90 font-normal">
-                  Here is how the BSIT program is currently performing.
-                </p>
-
-                <div className="mt-4 space-y-1.5 border-t border-white/15 pt-3.5">
-                  {alerts.length > 0 ? (
-                    alerts.map((text) => (
-                      <button
-                        key={text}
-                        type="button"
-                        onClick={() => setShowIntervention(true)}
-                        className="flex w-full items-center gap-2.5 rounded-lg py-1 text-left text-xs sm:text-sm transition hover:text-white/80 cursor-pointer"
-                      >
-                        <span className="h-2 w-2 shrink-0 rounded-full bg-[#F2B705] ring-2 ring-[#F2B705]/30 animate-pulse" />
-                        <span className="font-medium text-white">{text}</span>
-                      </button>
-                    ))
+                <div className="print:hidden flex items-center gap-2.5 flex-wrap">
+                  {activeKpiConfig ? (
+                    <button
+                      type="button"
+                      onClick={() => setActiveKpiId(null)}
+                      className="text-sm font-medium text-neutral-900 underline underline-offset-4 hover:text-neutral-600"
+                    >
+                      Back to enrollment
+                    </button>
                   ) : (
-                    <p className="text-xs sm:text-sm text-rose-200">No active alerts right now.</p>
+                    <div role="tablist" className="flex gap-4">
+                      {([
+                        ["forecast", "With forecast"],
+                        ["actual", "Actual only"],
+                      ] as const).map(([id, label]) => (
+                        <button
+                          key={id}
+                          type="button"
+                          role="tab"
+                          aria-selected={chartView === id}
+                          onClick={() => setChartView(id)}
+                          className={`border-b-2 pb-1 text-xs font-medium transition cursor-pointer ${chartView === id
+                            ? "border-neutral-900 text-neutral-900"
+                            : "border-transparent text-neutral-500 hover:text-neutral-900"
+                            }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
 
-              <div className="relative z-10 mt-5 pt-1">
+              <div className="grid grid-cols-1 gap-4 pt-4 lg:grid-cols-4">
+                <div className="relative h-[220px] min-w-0 lg:col-span-3 lg:h-auto lg:min-h-[260px]">
+                  <div className="absolute inset-0">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={190}>
+                      {activeKpiConfig ? (
+                        <LineChart data={activeKpiConfig.data} margin={{ top: 10, right: 12, left: -15, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ECECEF" />
+                          <XAxis dataKey="short" tick={{ fill: "#737373", fontSize: 11 }} tickLine={false} axisLine={false} />
+                          <YAxis
+                            tick={{ fill: "#737373", fontSize: 11 }}
+                            tickLine={false}
+                            axisLine={false}
+                            domain={activeKpiConfig.domain}
+                            ticks={activeKpiConfig.ticks}
+                            tickFormatter={(v) => `${v}%`}
+                          />
+                          <Tooltip content={<ChartTooltip />} />
+                          <ReferenceLine
+                            y={activeKpiConfig.target}
+                            stroke="#171717"
+                            strokeDasharray="4 4"
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="value"
+                            stroke={RED}
+                            strokeWidth={2.5}
+                            dot={{ r: 4, fill: RED, stroke: "#fff", strokeWidth: 1.5 }}
+                            activeDot={{ r: 6, fill: RED, stroke: "#fff", strokeWidth: 2 }}
+                          />
+                        </LineChart>
+                      ) : (
+                        <AreaChart
+                          data={ENROLLMENT_TIME_SERIES}
+                          margin={{ top: 10, right: 12, left: -15, bottom: 0 }}
+                          className="cursor-pointer"
+                          onClick={(e: any) => {
+                            if (e && e.activePayload && e.activePayload.length) {
+                              const pt = e.activePayload[0].payload;
+                              setSelectedTrendTerm(pt.short);
+                            }
+                          }}
+                        >
+                          <defs>
+                            <linearGradient id="actualFill" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor={RED} stopOpacity={0.14} />
+                              <stop offset="95%" stopColor={RED} stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ECECEF" />
+                          <XAxis dataKey="short" tick={{ fill: "#737373", fontSize: 11 }} tickLine={false} axisLine={false} />
+                          <YAxis tick={{ fill: "#737373", fontSize: 11 }} tickLine={false} axisLine={false} domain={[900, 1600]} ticks={[900, 1100, 1300, 1500]} />
+                          <Tooltip content={<ChartTooltip />} />
+                          <Area
+                            type="monotone"
+                            dataKey="actual"
+                            stroke={RED}
+                            strokeWidth={2.5}
+                            fill="url(#actualFill)"
+                            connectNulls
+                          />
+                          {chartView === "forecast" && (
+                            <Line
+                              type="monotone"
+                              dataKey="forecast"
+                              stroke={RED}
+                              strokeWidth={2}
+                              strokeDasharray="5 5"
+                              dot={{ r: 5, fill: RED, cursor: "pointer" }}
+                              activeDot={{ r: 7, fill: RED, cursor: "pointer" }}
+                              connectNulls
+                            />
+                          )}
+                        </AreaChart>
+                      )}
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Side summary */}
+                <div className="space-y-3">
+                  {activeKpiConfig ? (
+                    <>
+                      <div className="rounded-2xl bg-neutral-100 p-4 text-center">
+                        <p className="text-xs text-neutral-600">{selectedSemester}</p>
+                        <p className="mt-0.5 text-3xl font-semibold tabular-nums tracking-tight">{activeKpiConfig.currentValue}</p>
+                        <p className={`mt-1 text-xs font-medium ${activeKpiConfig.isTargetMet ? "text-neutral-900" : "text-[#8A1538]"}`}>
+                          {activeKpiConfig.isTargetMet ? "Goal met" : "Goal missed"}
+                        </p>
+                      </div>
+                      <dl className="space-y-2 text-sm">
+                        <div className="flex justify-between gap-3 border-b border-neutral-100 pb-2">
+                          <dt className="text-neutral-500">Goal</dt>
+                          <dd className="font-medium">{activeKpiConfig.def.target}</dd>
+                        </div>
+                        <div className="flex justify-between gap-3 border-b border-neutral-100 pb-2">
+                          <dt className="text-neutral-500">Change</dt>
+                          <dd className={`tabular-nums ${deltaTone(activeKpiConfig.currentDelta, activeKpiConfig.def.higherIsBetter)}`}>
+                            {activeKpiConfig.currentDelta}
+                          </dd>
+                        </div>
+                        <div className="flex justify-between gap-3">
+                          <dt className="text-neutral-500">Source</dt>
+                          <dd className="text-right text-xs font-medium leading-snug">{activeKpiConfig.def.sourceTag}</dd>
+                        </div>
+                      </dl>
+                    </>
+                  ) : (
+                    <>
+                      {/* Semester switch (same plain style as the chart tabs) */}
+                      <div className="flex gap-4 print:hidden">
+                        {([
+                          ["26-27 S1", "26-27 S1"],
+                          ["26-27 S2", "26-27 S2 forecast"],
+                        ] as const).map(([short, label]) => {
+                          const on = activeTrendData.short === short;
+                          return (
+                            <button
+                              key={short}
+                              type="button"
+                              aria-pressed={on}
+                              onClick={() => setSelectedTrendTerm(short)}
+                              className={`border-b-2 pb-1 text-xs font-medium transition cursor-pointer ${on
+                                ? "border-neutral-900 text-neutral-900"
+                                : "border-transparent text-neutral-500 hover:text-neutral-900"
+                                }`}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="rounded-2xl bg-neutral-100 px-4 py-3 text-center">
+                        <p className="text-xs text-neutral-600">
+                          {activeTrendData.isForecast ? "Expected students" : "Students enrolled"}
+                        </p>
+                        <p className="mt-0.5 text-3xl font-semibold tabular-nums tracking-tight">
+                          {(activeTrendData.forecast ?? activeTrendData.actual ?? 1490).toLocaleString()}
+                        </p>
+                        <p className="mt-0.5 text-xs text-neutral-500">{activeTrendData.label}</p>
+                      </div>
+
+                      <div className="space-y-2 text-sm">
+                        <Tip
+                          className="block"
+                          align="right"
+                          text={`${activeTrendData.teachers} regular teachers can handle ${activeTrendData.teachers} sections.`}
+                        >
+                          <div className="flex justify-between gap-3 border-b border-neutral-100 pb-2">
+                            <span className="text-neutral-500">Teachers</span>
+                            <span className="font-medium tabular-nums">{activeTrendData.teachers}</span>
+                          </div>
+                        </Tip>
+                        <Tip
+                          className="block"
+                          align="right"
+                          text={`${activeTrendData.sections} sections are needed to seat all ${(activeTrendData.forecast ?? activeTrendData.actual ?? 0).toLocaleString()} students.`}
+                        >
+                          <div className="flex justify-between gap-3 border-b border-neutral-100 pb-2">
+                            <span className="text-neutral-500">Sections needed</span>
+                            <span className="font-medium tabular-nums">{activeTrendData.sections}</span>
+                          </div>
+                        </Tip>
+                        <Tip
+                          className="block"
+                          align="right"
+                          text={
+                            activeTrendData.gap > 0
+                              ? `${activeTrendData.sections} sections are needed but only ${activeTrendData.teachers} teachers are available. Hire ${activeTrendData.gap} part-time teachers.`
+                              : "There are enough teachers for every section."
+                          }
+                        >
+                          <div className="flex items-center justify-between gap-3 border-b border-neutral-100 pb-2">
+                            <span className="text-neutral-500">Teacher gap</span>
+                            {activeTrendData.gap > 0 ? (
+                              <span className="rounded-md bg-[#F2B705]/25 px-1.5 py-0.5 text-sm font-semibold">
+                                {activeTrendData.gap} short
+                              </span>
+                            ) : (
+                              <span className="font-medium">None</span>
+                            )}
+                          </div>
+                        </Tip>
+                        <Tip
+                          className="block"
+                          align="right"
+                          text={
+                            activeTrendData.isForecast
+                              ? "On average, the forecast is off by 1.11%. Lower is better."
+                              : "This is the real, recorded enrollment."
+                          }
+                        >
+                          <div className="flex justify-between gap-3">
+                            <span className="text-neutral-500">
+                              {activeTrendData.isForecast ? "Forecast error (MAPE)" : "Data"}
+                            </span>
+                            <span className="font-medium tabular-nums">
+                              {activeTrendData.isForecast ? "1.11%" : "Actual record"}
+                            </span>
+                          </div>
+                        </Tip>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* ── Year levels + flagged sections ── */}
+            <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
+              <section id="year-levels" className="scroll-mt-24 flex flex-col rounded-2xl bg-white p-4 sm:p-5">
+                <h3 className="text-base font-semibold">Students by year level</h3>
+                <p className="text-sm text-neutral-500">Select a year to filter the dashboard.</p>
+
+                <div className="relative my-2 h-[170px] min-w-0">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={150}>
+                    <PieChart>
+                      <Pie
+                        data={baseTermData.yearLevels}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={74}
+                        paddingAngle={3}
+                        dataKey="count"
+                        cursor="pointer"
+                        stroke="none"
+                        onClick={(entry: any) => {
+                          if (entry && entry.name) {
+                            setSelectedYearLevel(selectedYearLevel === entry.name ? "All Year Levels" : entry.name);
+                          }
+                        }}
+                      >
+                        {baseTermData.yearLevels.map((e, i) => (
+                          <Cell
+                            key={e.name}
+                            fill={YEAR_COLORS[i % YEAR_COLORS.length]}
+                            opacity={selectedYearLevel === "All Year Levels" || selectedYearLevel === e.name ? 1 : 0.35}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        content={({ active, payload }: any) => {
+                          if (!active || !payload || !payload.length) return null;
+                          const item = payload[0].payload;
+                          return (
+                            <div className="rounded-lg bg-neutral-900 px-3 py-2 text-xs text-white shadow-lg">
+                              <p className="font-semibold">{item.name}</p>
+                              <p className="text-neutral-300">{item.count} students ({item.percent})</p>
+                            </div>
+                          );
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-2xl font-semibold tabular-nums tracking-tight">
+                      {filteredYearLevels.reduce((acc, curr) => acc + curr.count, 0).toLocaleString()}
+                    </span>
+                    <span className="text-xs text-neutral-500">
+                      {selectedYearLevel === "All Year Levels" ? "Students" : selectedYearLevel}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-auto grid grid-cols-2 gap-2 pt-2">
+                  {baseTermData.yearLevels.map((c, i) => {
+                    const isSelected = selectedYearLevel === c.name;
+                    return (
+                      <Tip
+                        key={c.name}
+                        className="block"
+                        text={`${c.count} students, ${c.percent} of all enrolled. Select to filter the dashboard.`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setSelectedYearLevel(isSelected ? "All Year Levels" : c.name)}
+                          aria-pressed={isSelected}
+                          className={`flex min-h-10 w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm ring-1 transition ${isSelected ? "bg-neutral-50 ring-neutral-900" : "ring-neutral-200 hover:bg-neutral-50"
+                            }`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: YEAR_COLORS[i % YEAR_COLORS.length] }} />
+                            {c.name}
+                          </span>
+                          <span className="font-semibold tabular-nums">{c.count}</span>
+                        </button>
+                      </Tip>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <section id="high-failure-sections" className="scroll-mt-24 flex flex-col rounded-2xl bg-white p-4 sm:p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-semibold">Sections with high failure</h3>
+                    <p className="text-sm text-neutral-500">Midterm failure above 20%</p>
+                  </div>
+                  <span className="shrink-0 text-sm font-semibold text-[#8A1538]">{visibleBreachCount} flagged</span>
+                </div>
+
+                <ul className="mt-2 flex-1 divide-y divide-neutral-100">
+                  {filteredSections.map((sec) => {
+                    const critical = sec.rate >= 20;
+                    return (
+                      <li key={sec.name + sec.course}>
+                        <Tip
+                          className="block"
+                          text={
+                            critical
+                              ? `${sec.failing} of ${sec.total} students (${sec.rate.toFixed(1)}%) are failing at midterm. This is above the 20% limit, so the section needs action.`
+                              : `${sec.failing} of ${sec.total} students (${sec.rate.toFixed(1)}%) are failing at midterm. This is close to the 20% limit, so keep watching.`
+                          }
+                        >
+                          <div className="flex items-center justify-between gap-3 py-3">
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium">{sec.name}</p>
+                              <p className="truncate text-xs text-neutral-500">
+                                {sec.course} · {sec.failing} of {sec.total} failing
+                              </p>
+                            </div>
+                            <div className="shrink-0 text-right">
+                              <p className={`text-lg font-semibold tabular-nums leading-tight ${critical ? "text-[#8A1538]" : "text-neutral-900"}`}>
+                                {sec.rate.toFixed(1)}%
+                              </p>
+                              <p className="flex items-center justify-end gap-1.5 text-xs text-neutral-600">
+                                {!critical && <span className="h-2 w-2 rounded-full bg-[#F2B705]" />}
+                                {critical ? "Critical" : "Watch"}
+                              </p>
+                            </div>
+                          </div>
+                        </Tip>
+                      </li>
+                    );
+                  })}
+                  {filteredSections.length === 0 && (
+                    <li className="py-6 text-center text-sm text-neutral-500">No sections to show.</li>
+                  )}
+                </ul>
+              </section>
+            </div>
+
+            {/* ── Teaching load + SETE + hard courses ── */}
+            <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-3">
+              <section id="teaching-load" className="scroll-mt-24 rounded-2xl bg-white p-4 sm:p-5 lg:col-span-2">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-semibold">Teaching load</h3>
+                    <p className="text-sm text-neutral-500">Select a row to see its SETE scores. Standard load: 18 units. Scores are pooled by course, not by instructor.</p>
+                  </div>
+                  <span className="shrink-0 text-sm text-neutral-500">{selectedYear}</span>
+                </div>
+
+                {/* Desktop / tablet table */}
+                <div className="mt-3 hidden md:block">
+                  <table className="w-full text-left text-sm">
+                    <thead>
+                      <tr className="border-b border-neutral-100 text-xs text-neutral-500">
+                        <th className="pb-2 pr-2 font-medium">Cluster</th>
+                        <th className="pb-2 pr-2 text-center font-medium">Type</th>
+                        <th className="pb-2 pr-2 text-center font-medium">Sections</th>
+                        <th className="pb-2 pr-2 text-center font-medium">Units</th>
+                        <th className="pb-2 text-right font-medium">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-100">
+                      {filteredFaculty.map((f) => {
+                        const isRowSelected = selectedFacultyId === f.id;
+                        return (
+                          <tr
+                            key={f.id}
+                            onClick={() => setSelectedFacultyId(isRowSelected ? null : f.id)}
+                            className={`cursor-pointer transition ${isRowSelected ? "bg-neutral-100" : "hover:bg-neutral-50"}`}
+                          >
+                            <td className="rounded-l-lg py-2.5 pl-2 pr-2">
+                              <span className="font-medium">{f.title.replace("Instructional ", "")}</span>
+                              <span className="ml-2 text-xs text-neutral-500">{f.courseCode}</span>
+                            </td>
+                            <td className="whitespace-nowrap py-2.5 pr-2 text-center text-neutral-600">{f.courseType === "GenEd" ? "Gen Ed" : f.courseType}</td>
+                            <td className="py-2.5 pr-2 text-center font-semibold tabular-nums">{f.sections}</td>
+                            <td className="py-2.5 pr-2 text-center font-semibold tabular-nums">{f.units}</td>
+                            <td className="rounded-r-lg py-2.5 pr-2 text-right"><StatusLabel status={f.status} /></td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile list: compact rows */}
+                <ul className="mt-2 divide-y divide-neutral-100 md:hidden">
+                  {filteredFaculty.map((f) => {
+                    const isRowSelected = selectedFacultyId === f.id;
+                    return (
+                      <li key={f.id}>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedFacultyId(isRowSelected ? null : f.id)}
+                          aria-pressed={isRowSelected}
+                          className={`flex w-full items-center justify-between gap-3 rounded-lg px-2 py-2 text-left ${isRowSelected ? "bg-neutral-100" : ""
+                            }`}
+                        >
+                          <span className="min-w-0">
+                            <span className="block truncate text-[13px] font-medium leading-snug">
+                              {f.title.replace("Instructional ", "")}
+                            </span>
+                            <span className="block truncate text-[11px] leading-snug text-neutral-500">
+                              {f.courseCode} · {f.sections} sections · {f.units} units
+                            </span>
+                          </span>
+                          <StatusLabel status={f.status} />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+                {filteredFaculty.length === 0 && (
+                  <p className="py-6 text-center text-sm text-neutral-500">No clusters to show.</p>
+                )}
+
+                <div className="mt-3 grid grid-cols-3 gap-2 border-t border-neutral-100 pt-3 text-center">
+                  <div>
+                    <p className="text-xs text-neutral-500">Capacity</p>
+                    <p className="text-sm font-semibold tabular-nums">{baseTermData.availableFaculty * 3} units</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-neutral-500">Needed</p>
+                    <p className="text-sm font-semibold tabular-nums">{baseTermData.sectionsNeeded * 3} units</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-neutral-500">Gap</p>
+                    {baseTermData.facultyShortage < 0 ? (
+                      <p className="inline-block rounded-md bg-[#F2B705]/25 px-1.5 text-sm font-semibold tabular-nums">
+                        {Math.abs(baseTermData.facultyShortage)} sections
+                      </p>
+                    ) : (
+                      <p className="text-sm font-semibold">None</p>
+                    )}
+                  </div>
+                </div>
+              </section>
+
+              <div className="space-y-3 sm:space-y-4">
+                {/* SETE scores */}
+                <section id="sete-scores" className="scroll-mt-24 rounded-2xl bg-white p-4 sm:p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="text-base font-semibold">SETE scores</h3>
+                      <p className="truncate text-sm text-neutral-500">
+                        {selectedFaculty
+                          ? selectedFaculty.title.replace("Instructional ", "")
+                          : "Department average · Goal 85%"}
+                      </p>
+                    </div>
+                    <div className="shrink-0 print:hidden">
+                      {selectedFaculty ? (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedFacultyId(null)}
+                          className="text-sm font-medium underline underline-offset-4 hover:text-neutral-600"
+                        >
+                          Reset
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setShowFeedbackModal(true)}
+                          className="text-sm font-medium underline underline-offset-4 hover:text-neutral-600"
+                        >
+                          Comments ({feedbackTotal})
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 space-y-3.5">
+                    {displayedSeteDimensions.map((c) => {
+                      const low = c.score < 85;
+                      return (
+                        <Tip
+                          key={c.name}
+                          className="block"
+                          text={`${c.score}% shows ${SETE_MEANING[c.code]}. The goal is 85% or higher, so this ${low ? "needs work" : "is on track"}.`}
+                        >
+                          <div>
+                            <div className="mb-1.5 flex justify-between text-sm">
+                              <span className="text-neutral-700">{c.name}</span>
+                              <span className="font-semibold tabular-nums">{c.score}%</span>
+                            </div>
+                            <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
+                              <div
+                                className={`h-full rounded-full ${low ? "bg-[#F2B705]" : "bg-neutral-900"}`}
+                                style={{ width: `${c.score}%` }}
+                              />
+                            </div>
+                          </div>
+                        </Tip>
+                      );
+                    })}
+                  </div>
+
+                  <div className="mt-4 space-y-1.5 border-t border-neutral-100 pt-3 text-xs text-neutral-500">
+                    {selectedFaculty ? (
+                      <>
+                        <p>Overall score: {selectedFaculty.overallScore.toFixed(1)}%</p>
+                        {selectedResponse && (
+                          <p>
+                            Response rate: {selectedResponse.rate}% ({selectedResponse.n} responses) · {selectedSemester}, {selectedYear}
+                          </p>
+                        )}
+                        <p>Pooled across {selectedFaculty.sections} sections. Individual instructors are not shown.</p>
+                        {selectedResponse && selectedResponse.rate < 50 && (
+                          <p className="font-medium text-[#8A1538]">Low response rate. Read this score with caution.</p>
+                        )}
+                      </>
+                    ) : (
+                      <p>
+                        Response rate: 84.6% ({Math.round(termData.totalEnrolled * 0.846).toLocaleString()} of {termData.totalEnrolled.toLocaleString()} students) · {selectedSemester}, {selectedYear}
+                      </p>
+                    )}
+                    <p>SETE is one input. Read it together with peer observation, class visits and student results, never on its own.</p>
+                  </div>
+                </section>
+
+                {/* High-failure courses */}
+                <section id="high-failure-courses" className="scroll-mt-24 rounded-2xl bg-white p-4 sm:p-5">
+                  <h3 className="text-base font-semibold">High-failure courses</h3>
+                  <p className="text-sm text-neutral-500">Midterm failure rate</p>
+                  <div className="mt-4 space-y-3.5">
+                    {filteredBottlenecks.map((s) => {
+                      const critical = s.failRate >= 20;
+                      return (
+                        <Tip
+                          key={s.code}
+                          className="block"
+                          text={`${s.failRate}% of the ${s.students} students in ${s.code} failed at midterm. ${critical ? "That is above the 20% limit." : "That is close to the 20% limit."}`}
+                        >
+                          <div>
+                            <div className="mb-1.5 flex justify-between gap-3 text-sm">
+                              <span className="min-w-0 truncate text-neutral-700">
+                                <span className="font-medium text-neutral-900">{s.code}</span> · {s.name}
+                              </span>
+                              <span className={`shrink-0 font-semibold tabular-nums ${critical ? "text-[#8A1538]" : ""}`}>
+                                {s.failRate}%
+                              </span>
+                            </div>
+                            <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
+                              <div
+                                className={`h-full rounded-full ${critical ? "bg-[#8A1538]" : "bg-[#F2B705]"}`}
+                                style={{ width: `${(s.failRate / 30) * 100}%` }}
+                              />
+                            </div>
+                          </div>
+                        </Tip>
+                      );
+                    })}
+                    {filteredBottlenecks.length === 0 && (
+                      <p className="py-4 text-center text-sm text-neutral-500">No courses to show.</p>
+                    )}
+                  </div>
+                </section>
+              </div>
+            </div>
+
+          </div>
+        </main>
+
+        {/* ══════════ MOBILE TAB BAR ══════════ */}
+        <nav
+          className="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-200 bg-white/95 backdrop-blur md:hidden print:hidden"
+          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+          aria-label="Main"
+        >
+          <div className="mx-auto grid max-w-md grid-cols-4">
+            {navItems.map(({ key, label, Icon, onClick }) => {
+              const isCurrent = key === "dash";
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={onClick}
+                  className={`flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium ${isCurrent ? "text-[#8A1538]" : "text-neutral-700"
+                    }`}
+                >
+                  <Icon className="h-5 w-5" />
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+
+        {/* ══════════ FORMULA WINDOW ══════════ */}
+        {modalKpi && (
+          <ModalShell
+            title={modalKpi.name}
+            subtitle={`Goal ${modalKpi.target}`}
+            onClose={() => setModalKpi(null)}
+            headerExtra={
+              <div className="-mx-5 mt-4 flex gap-1.5 overflow-x-auto px-5 pb-0.5">
+                {KPI_DEFINITIONS.map((d) => (
+                  <button
+                    key={d.id}
+                    type="button"
+                    onClick={() => setModalKpi(d)}
+                    aria-pressed={modalKpi.id === d.id}
+                    className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium transition ${modalKpi.id === d.id ? "bg-white text-neutral-900" : "text-neutral-400 hover:text-white"
+                      }`}
+                  >
+                    {KPI_SHORT_NAMES[d.id]}
+                  </button>
+                ))}
+              </div>
+            }
+          >
+            <div className="space-y-3">
+              <div className="space-y-4 rounded-2xl bg-white p-4">
+                <div>
+                  <p className="text-xs font-medium text-neutral-500">What it shows</p>
+                  <p className="mt-1 text-[15px] leading-relaxed">{modalKpi.objective}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-neutral-500">Formula</p>
+                  <p className="mt-1 rounded-xl bg-neutral-100 px-3 py-2.5 text-sm leading-relaxed">{modalKpi.formula}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-neutral-500">What to do</p>
+                  <p className="mt-1 border-l-4 border-[#F2B705] pl-3 text-[15px] leading-relaxed">{modalKpi.action}</p>
+                </div>
+                <p className="border-t border-neutral-100 pt-3 text-xs text-neutral-500">Source: {modalKpi.sourceTag}</p>
+              </div>
+              <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowIntervention(true)}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-rose-50 hover:shadow-md cursor-pointer print:hidden"
+                  onClick={() => {
+                    setActiveKpiId(modalKpi.id);
+                    setModalKpi(null);
+                    setTimeout(() => document.getElementById("trend-chart")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+                  }}
+                  className="min-h-11 flex-1 rounded-xl bg-neutral-900 px-4 text-sm font-medium text-white transition hover:bg-neutral-700"
                 >
-                  <span>See action plan</span>
-                  <ChevronRight className="h-4 w-4 text-neutral-600" />
+                  Show trend
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setModalKpi(null)}
+                  className="min-h-11 rounded-xl bg-white px-5 text-sm font-medium transition hover:bg-neutral-50"
+                >
+                  Close
                 </button>
               </div>
             </div>
+          </ModalShell>
+        )}
 
-            <div className="group/tip relative flex flex-col items-center justify-center rounded-2xl bg-white p-4 text-center lg:col-span-3">
-              <span className="mb-2.5 hidden h-10 w-10 items-center justify-center rounded-full bg-neutral-100 text-neutral-600 sm:flex">
-                <Users className="h-5 w-5" />
-              </span>
-              <p className="text-3xl font-semibold tabular-nums tracking-tight sm:text-4xl">
-                {termData.totalEnrolled.toLocaleString()}
-              </p>
-              <p className="mt-1.5 text-sm text-neutral-700">Total students</p>
-              <p className="mt-0.5 text-xs text-neutral-500">
-                <span className="font-medium text-[#15803D]">+4.9%</span> from last year
-              </p>
-              <TipBubble
-                text={`${termData.totalEnrolled.toLocaleString()} students are enrolled this semester. That is 4.9% more than last year.`}
-              />
-            </div>
-
-            <div className="group/tip relative flex flex-col items-center justify-center rounded-2xl bg-white p-4 text-center lg:col-span-3">
-              <span className="mb-2.5 hidden h-10 w-10 items-center justify-center rounded-full bg-neutral-100 text-neutral-600 sm:flex">
-                <Briefcase className="h-5 w-5" />
-              </span>
-              <p className="text-3xl font-semibold tabular-nums tracking-tight sm:text-4xl">{termData.availableFaculty}</p>
-              <p className="mt-1.5 text-sm text-neutral-700">Total teachers</p>
-              <p className="mt-0.5 text-xs text-neutral-500">{termData.availableFaculty * 3} units</p>
-              <TipBubble
-                text={`${termData.availableFaculty} regular teachers can cover ${termData.availableFaculty} sections (${termData.availableFaculty * 3} units). Extra sections need part-time teachers.`}
-              />
-            </div>
-          </section>
-
-          {/* ── 5 main KPIs ── */}
-          <section>
-            <div className="grid gap-3 lg:grid-cols-5">
-              {kpiGroups.map((group) => (
-                <div key={group.title} className={group.span}>
-                  <div className={`${group.bar} rounded-xl px-4 py-2.5 text-center text-sm font-semibold text-white sm:py-3 sm:text-[15px]`}>
-                    {group.title}
-                  </div>
-                  <div className={`mt-2 grid gap-2 sm:gap-2.5 ${group.cols}`}>
-                    {KPI_DEFINITIONS.filter((d) => group.ids.includes(d.id)).map(renderKpiCard)}
-                  </div>
+        {/* ══════════ ACTION PLAN WINDOW ══════════ */}
+        {showIntervention && (
+          <ModalShell
+            title="Action plan"
+            subtitle={`${actionSteps.length} steps to fix the current alerts`}
+            onClose={() => setShowIntervention(false)}
+            headerExtra={
+              <div className="mt-4 flex items-center gap-3">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/15">
+                  <div
+                    className="h-full rounded-full bg-white transition-all"
+                    style={{ width: `${(doneTasks / totalTasks) * 100}%` }}
+                  />
                 </div>
-              ))}
-            </div>
-            <p className="mt-2 px-1 text-xs text-neutral-600 print:hidden">Select a card to see its trend.</p>
-          </section>
+                <span className="text-xs tabular-nums text-neutral-300">
+                  {doneTasks} of {totalTasks} done
+                </span>
+              </div>
+            }
+          >
+            <div className="space-y-3">
+              {actionSteps.map((step) => {
+                const stepDone = step.items.every((_, i) => checked[`${step.id}-${i}`]);
+                return (
+                  <div key={step.id} className="rounded-2xl bg-white p-4">
+                    <div className="flex items-start gap-3">
+                      <span
+                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${stepDone ? "bg-neutral-900 text-white" : "bg-neutral-100 text-neutral-900"
+                          }`}
+                      >
+                        {stepDone ? <Check className="h-4 w-4" /> : step.id}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[15px] font-semibold leading-snug">{step.title}</p>
+                        <p className="text-xs text-neutral-500">{step.when}</p>
+                      </div>
+                      <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs text-neutral-700">
+                        <span className={`h-2 w-2 rounded-full ${step.dot}`} />
+                        {step.tag}
+                      </span>
+                    </div>
 
-          {/* ── Trend chart ── */}
-          <section id="trend-chart" className="scroll-mt-24 rounded-2xl bg-white p-4 sm:p-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div className="min-w-0">
-                <h3 className="text-base font-semibold sm:text-lg">
-                  {activeKpiConfig ? activeKpiConfig.title : "Enrollment trend"}
-                </h3>
-                <p className="text-sm text-neutral-500">
-                  {activeKpiConfig ? activeKpiConfig.subtitle : "Students per semester, with forecast"}
+                    {step.id === 1 ? (
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {breachedSections.map((s) => (
+                          <span key={s.name + s.course} className="rounded-lg bg-neutral-100 px-2.5 py-1 text-xs">
+                            {s.name.replace(" Section", "")}{" "}
+                            <span className="font-semibold text-[#8A1538]">{s.rate.toFixed(1)}%</span>
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      step.note && (
+                        <p className="mt-3 rounded-xl bg-neutral-100 px-3 py-2 text-[13px] leading-snug text-neutral-700">
+                          {step.note}
+                        </p>
+                      )
+                    )}
+
+                    <ul className="mt-1 divide-y divide-neutral-100">
+                      {step.items.map((it, i) => {
+                        const key = `${step.id}-${i}`;
+                        const done = !!checked[key];
+                        return (
+                          <li key={key}>
+                            <button
+                              type="button"
+                              role="checkbox"
+                              aria-checked={done}
+                              onClick={() => toggleCheck(key)}
+                              className="flex w-full items-start gap-3 py-3 text-left"
+                            >
+                              <span
+                                className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition ${done ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-300 bg-white"
+                                  }`}
+                              >
+                                {done && <Check className="h-3.5 w-3.5" />}
+                              </span>
+                              <span className={`text-sm leading-snug ${done ? "text-neutral-500 line-through" : "text-neutral-800"}`}>
+                                <span className="font-semibold">{it.label}.</span> {it.text}
+                              </span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                );
+              })}
+
+              <button
+                type="button"
+                onClick={() => setShowIntervention(false)}
+                className="min-h-11 w-full rounded-xl bg-neutral-900 text-sm font-medium text-white transition hover:bg-neutral-700"
+              >
+                Close
+              </button>
+            </div>
+          </ModalShell>
+        )}
+
+        {/* ══════════ COMMENTS WINDOW ══════════ */}
+        {showFeedbackModal && (
+          <ModalShell
+            title="Student comments"
+            subtitle="Anonymous feedback on courses and teaching"
+            onClose={() => setShowFeedbackModal(false)}
+          >
+            <div className="space-y-3">
+              <div className="rounded-2xl bg-white p-4">
+                <div className="flex h-2 overflow-hidden rounded-full bg-neutral-100">
+                  <div className="bg-[#8A1538]" style={{ width: `${(sentimentCount.negative / feedbackTotal) * 100}%` }} />
+                  <div className="bg-neutral-300" style={{ width: `${(sentimentCount.neutral / feedbackTotal) * 100}%` }} />
+                  <div className="bg-[#15803D]" style={{ width: `${(sentimentCount.positive / feedbackTotal) * 100}%` }} />
+                </div>
+
+                <div role="tablist" className="-mx-1 mt-4 flex gap-x-4 overflow-x-auto px-1">
+                  {([
+                    ["all", "All", feedbackTotal, null, ""],
+                    ["negative", "Concerns", sentimentCount.negative, Frown, "text-[#C62828]"],
+                    ["neutral", "Neutral", sentimentCount.neutral, Meh, "text-neutral-500"],
+                    ["positive", "Positive", sentimentCount.positive, Smile, "text-[#15803D]"],
+                  ] as const).map(([id, label, count, Face, tone]) => (
+                    <button
+                      key={id}
+                      type="button"
+                      role="tab"
+                      aria-selected={sentimentFilter === id}
+                      onClick={() => setSentimentFilter(id)}
+                      className={`flex shrink-0 items-center gap-1.5 border-b-2 pb-1.5 text-[13px] font-medium transition sm:text-sm ${sentimentFilter === id
+                        ? "border-neutral-900 text-neutral-900"
+                        : "border-transparent text-neutral-500 hover:text-neutral-900"
+                        }`}
+                    >
+                      {Face && <Face className={`h-4 w-4 ${tone}`} />}
+                      {label} <span className="tabular-nums">{count}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {filteredFeedback.map((fb) => {
+                const face =
+                  fb.sentiment === "negative"
+                    ? { Icon: Frown, bg: "bg-red-50", fg: "text-[#C62828]" }
+                    : fb.sentiment === "positive"
+                      ? { Icon: Smile, bg: "bg-green-50", fg: "text-[#15803D]" }
+                      : { Icon: Meh, bg: "bg-neutral-100", fg: "text-neutral-500" };
+                const label =
+                  fb.sentiment === "negative" ? "Concern" : fb.sentiment === "positive" ? "Positive" : "Neutral";
+                return (
+                  <article key={fb.comment} className="flex gap-3 rounded-2xl bg-white p-4">
+                    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${face.bg}`}>
+                      <face.Icon className={`h-6 w-6 ${face.fg}`} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <p className="text-sm font-semibold">{fb.category.replace(/ \(.*\)/, "")}</p>
+                        <Tip align="right" text="Sentiment score from -1 (very negative) to +1 (very positive).">
+                          <span className={`text-xs tabular-nums ${face.fg}`}>
+                            {label} · {fb.nlpScore > 0 ? `+${fb.nlpScore}` : fb.nlpScore}
+                          </span>
+                        </Tip>
+                      </div>
+                      <p className="text-xs text-neutral-500">{fb.theme}</p>
+                      <p className="mt-2.5 text-[15px] leading-relaxed text-neutral-800">&ldquo;{fb.comment}&rdquo;</p>
+                    </div>
+                  </article>
+                );
+              })}
+
+              <div className="rounded-2xl border-l-4 border-[#F2B705] bg-white p-4">
+                <p className="text-sm font-semibold">Reminder</p>
+                <p className="mt-0.5 text-sm leading-snug text-neutral-700">
+                  Use comments to improve courses. Do not use them to punish individual teachers.
                 </p>
               </div>
 
-              <div className="print:hidden flex items-center gap-2.5 flex-wrap">
-                {activeKpiConfig ? (
-                  <button
-                    type="button"
-                    onClick={() => setActiveKpiId(null)}
-                    className="text-sm font-medium text-neutral-900 underline underline-offset-4 hover:text-neutral-600"
+              <button
+                type="button"
+                onClick={() => setShowFeedbackModal(false)}
+                className="min-h-11 w-full rounded-xl bg-neutral-900 text-sm font-medium text-white transition hover:bg-neutral-700"
+              >
+                Close
+              </button>
+            </div>
+          </ModalShell>
+        )}
+
+        {/* ══════════ FILTERS WINDOW ══════════ */}
+        {showFilterModal && (
+          <ModalShell
+            title="Filters"
+            subtitle="Year and semester update everything. Year level and course type narrow the KPIs and course lists."
+            onClose={() => setShowFilterModal(false)}
+            widthClass="sm:max-w-md"
+          >
+            <div className="space-y-3">
+              <div className="space-y-4 rounded-2xl bg-white p-4">
+                <div>
+                  <label htmlFor="f-year" className="text-xs font-medium text-neutral-500">School year</label>
+                  <select
+                    id="f-year"
+                    value={selectedYear}
+                    onChange={(e) => {
+                      const year = e.target.value;
+                      setSelectedYear(year);
+                      // Semester 2 of the current year has not started, so it has no data yet
+                      if (TERM_DATA_STORE[`${year}_Semester 1`]?.isCurrentOrFuture) setSelectedSemester("Semester 1");
+                    }}
+                    className="mt-1.5 w-full rounded-xl bg-neutral-100 px-3 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-neutral-900/20"
                   >
-                    Back to enrollment
-                  </button>
-                ) : (
-                  <div role="tablist" className="flex gap-4">
+                    <option value="AY 2026–2027">AY 2026–2027 (Current)</option>
+                    <option value="AY 2025–2026">AY 2025–2026 (Past)</option>
+                    <option value="AY 2024–2025">AY 2024–2025 (Past)</option>
+                    <option value="AY 2023–2024">AY 2023–2024 (Past)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="f-sem" className="text-xs font-medium text-neutral-500">Semester</label>
+                  <select
+                    id="f-sem"
+                    value={selectedSemester}
+                    onChange={(e) => setSelectedSemester(e.target.value)}
+                    className="mt-1.5 w-full rounded-xl bg-neutral-100 px-3 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-neutral-900/20"
+                  >
+                    <option value="Semester 1">{semester2Locked ? "Semester 1 (Current)" : "Semester 1 (Done)"}</option>
+                    <option value="Semester 2" disabled={semester2Locked}>{semester2Locked ? "Semester 2 (Not started, no data yet)" : "Semester 2 (Done)"}</option>
+                  </select>
+                </div>
+
+                <div>
+                  <p className="text-xs font-medium text-neutral-500">Year level</p>
+                  <div className="mt-1.5 grid grid-cols-5 gap-1.5">
                     {([
-                      ["forecast", "With forecast"],
-                      ["actual", "Actual only"],
-                    ] as const).map(([id, label]) => (
+                      ["All Year Levels", "All"],
+                      ["1st Year", "1st"],
+                      ["2nd Year", "2nd"],
+                      ["3rd Year", "3rd"],
+                      ["4th Year", "4th"],
+                    ] as const).map(([value, label]) => (
                       <button
-                        key={id}
+                        key={value}
                         type="button"
-                        role="tab"
-                        aria-selected={chartView === id}
-                        onClick={() => setChartView(id)}
-                        className={`border-b-2 pb-1 text-xs font-medium transition cursor-pointer ${chartView === id
-                          ? "border-neutral-900 text-neutral-900"
-                          : "border-transparent text-neutral-500 hover:text-neutral-900"
+                        onClick={() => setSelectedYearLevel(value)}
+                        aria-pressed={selectedYearLevel === value}
+                        className={`min-h-10 rounded-xl text-sm font-medium transition ${selectedYearLevel === value
+                          ? "bg-neutral-900 text-white"
+                          : "bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
                           }`}
                       >
                         {label}
                       </button>
                     ))}
                   </div>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 pt-4 lg:grid-cols-4">
-              <div className="relative h-[220px] min-w-0 lg:col-span-3 lg:h-auto lg:min-h-[260px]">
-                <div className="absolute inset-0">
-                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={190}>
-                    {activeKpiConfig ? (
-                      <LineChart data={activeKpiConfig.data} margin={{ top: 10, right: 12, left: -15, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ECECEF" />
-                        <XAxis dataKey="short" tick={{ fill: "#737373", fontSize: 11 }} tickLine={false} axisLine={false} />
-                        <YAxis
-                          tick={{ fill: "#737373", fontSize: 11 }}
-                          tickLine={false}
-                          axisLine={false}
-                          domain={activeKpiConfig.domain}
-                          ticks={activeKpiConfig.ticks}
-                          tickFormatter={(v) => `${v}%`}
-                        />
-                        <Tooltip content={<ChartTooltip />} />
-                        <ReferenceLine
-                          y={activeKpiConfig.target}
-                          stroke="#171717"
-                          strokeDasharray="4 4"
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="value"
-                          stroke={RED}
-                          strokeWidth={2.5}
-                          dot={{ r: 4, fill: RED, stroke: "#fff", strokeWidth: 1.5 }}
-                          activeDot={{ r: 6, fill: RED, stroke: "#fff", strokeWidth: 2 }}
-                        />
-                      </LineChart>
-                    ) : (
-                      <AreaChart
-                        data={ENROLLMENT_TIME_SERIES}
-                        margin={{ top: 10, right: 12, left: -15, bottom: 0 }}
-                        className="cursor-pointer"
-                        onClick={(e: any) => {
-                          if (e && e.activePayload && e.activePayload.length) {
-                            const pt = e.activePayload[0].payload;
-                            setSelectedTrendTerm(pt.short);
-                          }
-                        }}
-                      >
-                        <defs>
-                          <linearGradient id="actualFill" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={RED} stopOpacity={0.14} />
-                            <stop offset="95%" stopColor={RED} stopOpacity={0} />
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ECECEF" />
-                        <XAxis dataKey="short" tick={{ fill: "#737373", fontSize: 11 }} tickLine={false} axisLine={false} />
-                        <YAxis tick={{ fill: "#737373", fontSize: 11 }} tickLine={false} axisLine={false} domain={[900, 1600]} ticks={[900, 1100, 1300, 1500]} />
-                        <Tooltip content={<ChartTooltip />} />
-                        <Area
-                          type="monotone"
-                          dataKey="actual"
-                          stroke={RED}
-                          strokeWidth={2.5}
-                          fill="url(#actualFill)"
-                          connectNulls
-                        />
-                        {chartView === "forecast" && (
-                          <Line
-                            type="monotone"
-                            dataKey="forecast"
-                            stroke={RED}
-                            strokeWidth={2}
-                            strokeDasharray="5 5"
-                            dot={{ r: 5, fill: RED, cursor: "pointer" }}
-                            activeDot={{ r: 7, fill: RED, cursor: "pointer" }}
-                            connectNulls
-                          />
-                        )}
-                      </AreaChart>
-                    )}
-                  </ResponsiveContainer>
                 </div>
-              </div>
 
-              {/* Side summary */}
-              <div className="space-y-3">
-                {activeKpiConfig ? (
-                  <>
-                    <div className="rounded-2xl bg-neutral-100 p-4 text-center">
-                      <p className="text-xs text-neutral-600">{selectedSemester}</p>
-                      <p className="mt-0.5 text-3xl font-semibold tabular-nums tracking-tight">{activeKpiConfig.currentValue}</p>
-                      <p className={`mt-1 text-xs font-medium ${activeKpiConfig.isTargetMet ? "text-neutral-900" : "text-[#8A1538]"}`}>
-                        {activeKpiConfig.isTargetMet ? "Goal met" : "Goal missed"}
-                      </p>
-                    </div>
-                    <dl className="space-y-2 text-sm">
-                      <div className="flex justify-between gap-3 border-b border-neutral-100 pb-2">
-                        <dt className="text-neutral-500">Goal</dt>
-                        <dd className="font-medium">{activeKpiConfig.def.target}</dd>
-                      </div>
-                      <div className="flex justify-between gap-3 border-b border-neutral-100 pb-2">
-                        <dt className="text-neutral-500">Change</dt>
-                        <dd className={`tabular-nums ${deltaTone(activeKpiConfig.currentDelta, activeKpiConfig.def.higherIsBetter)}`}>
-                          {activeKpiConfig.currentDelta}
-                        </dd>
-                      </div>
-                      <div className="flex justify-between gap-3">
-                        <dt className="text-neutral-500">Source</dt>
-                        <dd className="text-right text-xs font-medium leading-snug">{activeKpiConfig.def.sourceTag}</dd>
-                      </div>
-                    </dl>
-                  </>
-                ) : (
-                  <>
-                    {/* Semester switch (same plain style as the chart tabs) */}
-                    <div className="flex gap-4 print:hidden">
-                      {([
-                        ["26-27 S1", "26-27 S1"],
-                        ["26-27 S2", "26-27 S2 forecast"],
-                      ] as const).map(([short, label]) => {
-                        const on = activeTrendData.short === short;
-                        return (
-                          <button
-                            key={short}
-                            type="button"
-                            aria-pressed={on}
-                            onClick={() => setSelectedTrendTerm(short)}
-                            className={`border-b-2 pb-1 text-xs font-medium transition cursor-pointer ${on
-                              ? "border-neutral-900 text-neutral-900"
-                              : "border-transparent text-neutral-500 hover:text-neutral-900"
-                              }`}
-                          >
-                            {label}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    <div className="rounded-2xl bg-neutral-100 px-4 py-3 text-center">
-                      <p className="text-xs text-neutral-600">
-                        {activeTrendData.isForecast ? "Expected students" : "Students enrolled"}
-                      </p>
-                      <p className="mt-0.5 text-3xl font-semibold tabular-nums tracking-tight">
-                        {(activeTrendData.forecast ?? activeTrendData.actual ?? 1490).toLocaleString()}
-                      </p>
-                      <p className="mt-0.5 text-xs text-neutral-500">{activeTrendData.label}</p>
-                    </div>
-
-                    <div className="space-y-2 text-sm">
-                      <Tip
-                        className="block"
-                        align="right"
-                        text={`${activeTrendData.teachers} regular teachers can handle ${activeTrendData.teachers} sections.`}
-                      >
-                        <div className="flex justify-between gap-3 border-b border-neutral-100 pb-2">
-                          <span className="text-neutral-500">Teachers</span>
-                          <span className="font-medium tabular-nums">{activeTrendData.teachers}</span>
-                        </div>
-                      </Tip>
-                      <Tip
-                        className="block"
-                        align="right"
-                        text={`${activeTrendData.sections} sections are needed to seat all ${(activeTrendData.forecast ?? activeTrendData.actual ?? 0).toLocaleString()} students.`}
-                      >
-                        <div className="flex justify-between gap-3 border-b border-neutral-100 pb-2">
-                          <span className="text-neutral-500">Sections needed</span>
-                          <span className="font-medium tabular-nums">{activeTrendData.sections}</span>
-                        </div>
-                      </Tip>
-                      <Tip
-                        className="block"
-                        align="right"
-                        text={
-                          activeTrendData.gap > 0
-                            ? `${activeTrendData.sections} sections are needed but only ${activeTrendData.teachers} teachers are available. Hire ${activeTrendData.gap} part-time teachers.`
-                            : "There are enough teachers for every section."
-                        }
-                      >
-                        <div className="flex items-center justify-between gap-3 border-b border-neutral-100 pb-2">
-                          <span className="text-neutral-500">Teacher gap</span>
-                          {activeTrendData.gap > 0 ? (
-                            <span className="rounded-md bg-[#F2B705]/25 px-1.5 py-0.5 text-sm font-semibold">
-                              {activeTrendData.gap} short
-                            </span>
-                          ) : (
-                            <span className="font-medium">None</span>
-                          )}
-                        </div>
-                      </Tip>
-                      <Tip
-                        className="block"
-                        align="right"
-                        text={
-                          activeTrendData.isForecast
-                            ? "On average, the forecast is off by 1.11%. Lower is better."
-                            : "This is the real, recorded enrollment."
-                        }
-                      >
-                        <div className="flex justify-between gap-3">
-                          <span className="text-neutral-500">
-                            {activeTrendData.isForecast ? "Forecast error (MAPE)" : "Data"}
-                          </span>
-                          <span className="font-medium tabular-nums">
-                            {activeTrendData.isForecast ? "1.11%" : "Actual record"}
-                          </span>
-                        </div>
-                      </Tip>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </section>
-
-          {/* ── Year levels + flagged sections ── */}
-          <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
-            <section className="flex flex-col rounded-2xl bg-white p-4 sm:p-5">
-              <h3 className="text-base font-semibold">Students by year level</h3>
-              <p className="text-sm text-neutral-500">Select a year to filter the dashboard.</p>
-
-              <div className="relative my-2 h-[170px] min-w-0">
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={150}>
-                  <PieChart>
-                    <Pie
-                      data={baseTermData.yearLevels}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={50}
-                      outerRadius={74}
-                      paddingAngle={3}
-                      dataKey="count"
-                      cursor="pointer"
-                      stroke="none"
-                      onClick={(entry: any) => {
-                        if (entry && entry.name) {
-                          setSelectedYearLevel(selectedYearLevel === entry.name ? "All Year Levels" : entry.name);
-                        }
-                      }}
-                    >
-                      {baseTermData.yearLevels.map((e, i) => (
-                        <Cell
-                          key={e.name}
-                          fill={YEAR_COLORS[i % YEAR_COLORS.length]}
-                          opacity={selectedYearLevel === "All Year Levels" || selectedYearLevel === e.name ? 1 : 0.35}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      content={({ active, payload }: any) => {
-                        if (!active || !payload || !payload.length) return null;
-                        const item = payload[0].payload;
-                        return (
-                          <div className="rounded-lg bg-neutral-900 px-3 py-2 text-xs text-white shadow-lg">
-                            <p className="font-semibold">{item.name}</p>
-                            <p className="text-neutral-300">{item.count} students ({item.percent})</p>
-                          </div>
-                        );
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-2xl font-semibold tabular-nums tracking-tight">
-                    {filteredYearLevels.reduce((acc, curr) => acc + curr.count, 0).toLocaleString()}
-                  </span>
-                  <span className="text-xs text-neutral-500">
-                    {selectedYearLevel === "All Year Levels" ? "Students" : selectedYearLevel}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-auto grid grid-cols-2 gap-2 pt-2">
-                {baseTermData.yearLevels.map((c, i) => {
-                  const isSelected = selectedYearLevel === c.name;
-                  return (
-                    <Tip
-                      key={c.name}
-                      className="block"
-                      text={`${c.count} students, ${c.percent} of all enrolled. Select to filter the dashboard.`}
-                    >
+                <div>
+                  <p className="text-xs font-medium text-neutral-500">Course type</p>
+                  <div className="mt-1.5 grid grid-cols-3 gap-1.5">
+                    {([
+                      ["All Courses", "All"],
+                      ["Major / Professional IT", "Majors"],
+                      ["General Education", "Gen Ed"],
+                    ] as const).map(([value, label]) => (
                       <button
+                        key={value}
                         type="button"
-                        onClick={() => setSelectedYearLevel(isSelected ? "All Year Levels" : c.name)}
-                        aria-pressed={isSelected}
-                        className={`flex min-h-10 w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm ring-1 transition ${isSelected ? "bg-neutral-50 ring-neutral-900" : "ring-neutral-200 hover:bg-neutral-50"
+                        onClick={() => setSelectedCourseType(value)}
+                        aria-pressed={selectedCourseType === value}
+                        className={`min-h-10 rounded-xl text-sm font-medium transition ${selectedCourseType === value
+                          ? "bg-neutral-900 text-white"
+                          : "bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
                           }`}
                       >
-                        <span className="flex items-center gap-2">
-                          <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: YEAR_COLORS[i % YEAR_COLORS.length] }} />
-                          {c.name}
-                        </span>
-                        <span className="font-semibold tabular-nums">{c.count}</span>
+                        {label}
                       </button>
-                    </Tip>
-                  );
-                })}
-              </div>
-            </section>
-
-            <section className="flex flex-col rounded-2xl bg-white p-4 sm:p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-base font-semibold">Sections with high failure</h3>
-                  <p className="text-sm text-neutral-500">Midterm failure above 20%</p>
-                </div>
-                <span className="shrink-0 text-sm font-semibold text-[#8A1538]">{visibleBreachCount} flagged</span>
-              </div>
-
-              <ul className="mt-2 flex-1 divide-y divide-neutral-100">
-                {filteredSections.map((sec) => {
-                  const critical = sec.rate >= 20;
-                  return (
-                    <li key={sec.name + sec.course}>
-                      <Tip
-                        className="block"
-                        text={
-                          critical
-                            ? `${sec.failing} of ${sec.total} students (${sec.rate.toFixed(1)}%) are failing at midterm. This is above the 20% limit, so the section needs action.`
-                            : `${sec.failing} of ${sec.total} students (${sec.rate.toFixed(1)}%) are failing at midterm. This is close to the 20% limit, so keep watching.`
-                        }
-                      >
-                        <div className="flex items-center justify-between gap-3 py-3">
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-medium">{sec.name}</p>
-                            <p className="truncate text-xs text-neutral-500">
-                              {sec.course} · {sec.failing} of {sec.total} failing
-                            </p>
-                          </div>
-                          <div className="shrink-0 text-right">
-                            <p className={`text-lg font-semibold tabular-nums leading-tight ${critical ? "text-[#8A1538]" : "text-neutral-900"}`}>
-                              {sec.rate.toFixed(1)}%
-                            </p>
-                            <p className="flex items-center justify-end gap-1.5 text-xs text-neutral-600">
-                              {!critical && <span className="h-2 w-2 rounded-full bg-[#F2B705]" />}
-                              {critical ? "Critical" : "Watch"}
-                            </p>
-                          </div>
-                        </div>
-                      </Tip>
-                    </li>
-                  );
-                })}
-                {filteredSections.length === 0 && (
-                  <li className="py-6 text-center text-sm text-neutral-500">No sections to show.</li>
-                )}
-              </ul>
-            </section>
-          </div>
-
-          {/* ── Teaching load + SETE + hard courses ── */}
-          <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-3">
-            <section className="rounded-2xl bg-white p-4 sm:p-5 lg:col-span-2">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-base font-semibold">Teaching load</h3>
-                  <p className="text-sm text-neutral-500">Select a row to see its SETE scores. Standard load: 18 units.</p>
-                </div>
-                <span className="shrink-0 text-sm text-neutral-500">{selectedYear}</span>
-              </div>
-
-              {/* Desktop / tablet table */}
-              <div className="mt-3 hidden md:block">
-                <table className="w-full text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-neutral-100 text-xs text-neutral-500">
-                      <th className="pb-2 pr-2 font-medium">Cluster</th>
-                      <th className="pb-2 pr-2 text-center font-medium">Type</th>
-                      <th className="pb-2 pr-2 text-center font-medium">Sections</th>
-                      <th className="pb-2 pr-2 text-center font-medium">Units</th>
-                      <th className="pb-2 text-right font-medium">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-100">
-                    {filteredFaculty.map((f) => {
-                      const isRowSelected = selectedFacultyId === f.id;
-                      return (
-                        <tr
-                          key={f.id}
-                          onClick={() => setSelectedFacultyId(isRowSelected ? null : f.id)}
-                          className={`cursor-pointer transition ${isRowSelected ? "bg-neutral-100" : "hover:bg-neutral-50"}`}
-                        >
-                          <td className="rounded-l-lg py-2.5 pl-2 pr-2">
-                            <span className="font-medium">{f.title.replace("Instructional ", "")}</span>
-                            <span className="ml-2 text-xs text-neutral-500">{f.courseCode}</span>
-                          </td>
-                          <td className="whitespace-nowrap py-2.5 pr-2 text-center text-neutral-600">{f.courseType === "GenEd" ? "Gen Ed" : f.courseType}</td>
-                          <td className="py-2.5 pr-2 text-center font-semibold tabular-nums">{f.sections}</td>
-                          <td className="py-2.5 pr-2 text-center font-semibold tabular-nums">{f.units}</td>
-                          <td className="rounded-r-lg py-2.5 pr-2 text-right"><StatusLabel status={f.status} /></td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile list: compact rows */}
-              <ul className="mt-2 divide-y divide-neutral-100 md:hidden">
-                {filteredFaculty.map((f) => {
-                  const isRowSelected = selectedFacultyId === f.id;
-                  return (
-                    <li key={f.id}>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedFacultyId(isRowSelected ? null : f.id)}
-                        aria-pressed={isRowSelected}
-                        className={`flex w-full items-center justify-between gap-3 rounded-lg px-2 py-2 text-left ${isRowSelected ? "bg-neutral-100" : ""
-                          }`}
-                      >
-                        <span className="min-w-0">
-                          <span className="block truncate text-[13px] font-medium leading-snug">
-                            {f.title.replace("Instructional ", "")}
-                          </span>
-                          <span className="block truncate text-[11px] leading-snug text-neutral-500">
-                            {f.courseCode} · {f.sections} sections · {f.units} units
-                          </span>
-                        </span>
-                        <StatusLabel status={f.status} />
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-              {filteredFaculty.length === 0 && (
-                <p className="py-6 text-center text-sm text-neutral-500">No clusters to show.</p>
-              )}
-
-              <div className="mt-3 grid grid-cols-3 gap-2 border-t border-neutral-100 pt-3 text-center">
-                <div>
-                  <p className="text-xs text-neutral-500">Capacity</p>
-                  <p className="text-sm font-semibold tabular-nums">{baseTermData.availableFaculty * 3} units</p>
-                </div>
-                <div>
-                  <p className="text-xs text-neutral-500">Needed</p>
-                  <p className="text-sm font-semibold tabular-nums">{baseTermData.sectionsNeeded * 3} units</p>
-                </div>
-                <div>
-                  <p className="text-xs text-neutral-500">Gap</p>
-                  {baseTermData.facultyShortage < 0 ? (
-                    <p className="inline-block rounded-md bg-[#F2B705]/25 px-1.5 text-sm font-semibold tabular-nums">
-                      {Math.abs(baseTermData.facultyShortage)} sections
-                    </p>
-                  ) : (
-                    <p className="text-sm font-semibold">None</p>
-                  )}
-                </div>
-              </div>
-            </section>
-
-            <div className="space-y-3 sm:space-y-4">
-              {/* SETE scores */}
-              <section className="rounded-2xl bg-white p-4 sm:p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <h3 className="text-base font-semibold">SETE scores</h3>
-                    <p className="truncate text-sm text-neutral-500">
-                      {selectedFaculty
-                        ? selectedFaculty.title.replace("Instructional ", "")
-                        : "Department average · Goal 85%"}
-                    </p>
-                  </div>
-                  <div className="shrink-0 print:hidden">
-                    {selectedFaculty ? (
-                      <button
-                        type="button"
-                        onClick={() => setSelectedFacultyId(null)}
-                        className="text-sm font-medium underline underline-offset-4 hover:text-neutral-600"
-                      >
-                        Reset
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setShowFeedbackModal(true)}
-                        className="text-sm font-medium underline underline-offset-4 hover:text-neutral-600"
-                      >
-                        Comments ({feedbackTotal})
-                      </button>
-                    )}
+                    ))}
                   </div>
                 </div>
+              </div>
 
-                <div className="mt-4 space-y-3.5">
-                  {displayedSeteDimensions.map((c) => {
-                    const low = c.score < 85;
-                    return (
-                      <Tip
-                        key={c.name}
-                        className="block"
-                        text={`${c.score}% shows ${SETE_MEANING[c.code]}. The goal is 85% or higher, so this ${low ? "needs work" : "is on track"}.`}
-                      >
-                        <div>
-                          <div className="mb-1.5 flex justify-between text-sm">
-                            <span className="text-neutral-700">{c.name}</span>
-                            <span className="font-semibold tabular-nums">{c.score}%</span>
-                          </div>
-                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
-                            <div
-                              className={`h-full rounded-full ${low ? "bg-[#F2B705]" : "bg-neutral-900"}`}
-                              style={{ width: `${c.score}%` }}
-                            />
-                          </div>
-                        </div>
-                      </Tip>
-                    );
-                  })}
-                </div>
-
-                <p className="mt-4 border-t border-neutral-100 pt-3 text-xs text-neutral-500">
-                  {selectedFaculty
-                    ? `Overall score: ${selectedFaculty.overallScore.toFixed(1)}%`
-                    : `Response rate: 84.6% (${Math.round(termData.totalEnrolled * 0.846).toLocaleString()} of ${termData.totalEnrolled.toLocaleString()} students)`}
-                </p>
-              </section>
-
-              {/* High-failure courses */}
-              <section className="rounded-2xl bg-white p-4 sm:p-5">
-                <h3 className="text-base font-semibold">High-failure courses</h3>
-                <p className="text-sm text-neutral-500">Midterm failure rate</p>
-                <div className="mt-4 space-y-3.5">
-                  {filteredBottlenecks.map((s) => {
-                    const critical = s.failRate >= 20;
-                    return (
-                      <Tip
-                        key={s.code}
-                        className="block"
-                        text={`${s.failRate}% of the ${s.students} students in ${s.code} failed at midterm. ${critical ? "That is above the 20% limit." : "That is close to the 20% limit."}`}
-                      >
-                        <div>
-                          <div className="mb-1.5 flex justify-between gap-3 text-sm">
-                            <span className="min-w-0 truncate text-neutral-700">
-                              <span className="font-medium text-neutral-900">{s.code}</span> · {s.name}
-                            </span>
-                            <span className={`shrink-0 font-semibold tabular-nums ${critical ? "text-[#8A1538]" : ""}`}>
-                              {s.failRate}%
-                            </span>
-                          </div>
-                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
-                            <div
-                              className={`h-full rounded-full ${critical ? "bg-[#8A1538]" : "bg-[#F2B705]"}`}
-                              style={{ width: `${(s.failRate / 30) * 100}%` }}
-                            />
-                          </div>
-                        </div>
-                      </Tip>
-                    );
-                  })}
-                  {filteredBottlenecks.length === 0 && (
-                    <p className="py-4 text-center text-sm text-neutral-500">No courses to show.</p>
-                  )}
-                </div>
-              </section>
-            </div>
-          </div>
-
-        </div>
-      </main>
-
-      {/* ══════════ MOBILE TAB BAR ══════════ */}
-      <nav
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-200 bg-white/95 backdrop-blur md:hidden print:hidden"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-        aria-label="Main"
-      >
-        <div className="mx-auto grid max-w-md grid-cols-4">
-          {navItems.map(({ key, label, Icon, onClick }) => {
-            const isCurrent = key === "dash";
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={onClick}
-                className={`flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium ${isCurrent ? "text-[#8A1538]" : "text-neutral-700"
-                  }`}
-              >
-                <Icon className="h-5 w-5" />
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      </nav>
-
-      {/* ══════════ FORMULA WINDOW ══════════ */}
-      {modalKpi && (
-        <ModalShell
-          title={modalKpi.name}
-          subtitle={`Goal ${modalKpi.target}`}
-          onClose={() => setModalKpi(null)}
-          headerExtra={
-            <div className="-mx-5 mt-4 flex gap-1.5 overflow-x-auto px-5 pb-0.5">
-              {KPI_DEFINITIONS.map((d) => (
+              <div className="flex gap-2">
                 <button
-                  key={d.id}
                   type="button"
-                  onClick={() => setModalKpi(d)}
-                  aria-pressed={modalKpi.id === d.id}
-                  className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium transition ${modalKpi.id === d.id ? "bg-white text-neutral-900" : "text-neutral-400 hover:text-white"
-                    }`}
+                  onClick={resetAllFilters}
+                  className="min-h-11 rounded-xl bg-white px-5 text-sm font-medium transition hover:bg-neutral-50"
                 >
-                  {KPI_SHORT_NAMES[d.id]}
+                  Reset
                 </button>
-              ))}
-            </div>
-          }
-        >
-          <div className="space-y-3">
-            <div className="space-y-4 rounded-2xl bg-white p-4">
-              <div>
-                <p className="text-xs font-medium text-neutral-500">What it shows</p>
-                <p className="mt-1 text-[15px] leading-relaxed">{modalKpi.objective}</p>
-              </div>
-              <div>
-                <p className="text-xs font-medium text-neutral-500">Formula</p>
-                <p className="mt-1 rounded-xl bg-neutral-100 px-3 py-2.5 text-sm leading-relaxed">{modalKpi.formula}</p>
-              </div>
-              <div>
-                <p className="text-xs font-medium text-neutral-500">What to do</p>
-                <p className="mt-1 border-l-4 border-[#F2B705] pl-3 text-[15px] leading-relaxed">{modalKpi.action}</p>
-              </div>
-              <p className="border-t border-neutral-100 pt-3 text-xs text-neutral-500">Source: {modalKpi.sourceTag}</p>
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveKpiId(modalKpi.id);
-                  setModalKpi(null);
-                  setTimeout(() => document.getElementById("trend-chart")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
-                }}
-                className="min-h-11 flex-1 rounded-xl bg-neutral-900 px-4 text-sm font-medium text-white transition hover:bg-neutral-700"
-              >
-                Show trend
-              </button>
-              <button
-                type="button"
-                onClick={() => setModalKpi(null)}
-                className="min-h-11 rounded-xl bg-white px-5 text-sm font-medium transition hover:bg-neutral-50"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </ModalShell>
-      )}
-
-      {/* ══════════ ACTION PLAN WINDOW ══════════ */}
-      {showIntervention && (
-        <ModalShell
-          title="Action plan"
-          subtitle={`${actionSteps.length} steps to fix the current alerts`}
-          onClose={() => setShowIntervention(false)}
-          headerExtra={
-            <div className="mt-4 flex items-center gap-3">
-              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/15">
-                <div
-                  className="h-full rounded-full bg-white transition-all"
-                  style={{ width: `${(doneTasks / totalTasks) * 100}%` }}
-                />
-              </div>
-              <span className="text-xs tabular-nums text-neutral-300">
-                {doneTasks} of {totalTasks} done
-              </span>
-            </div>
-          }
-        >
-          <div className="space-y-3">
-            {actionSteps.map((step) => {
-              const stepDone = step.items.every((_, i) => checked[`${step.id}-${i}`]);
-              return (
-                <div key={step.id} className="rounded-2xl bg-white p-4">
-                  <div className="flex items-start gap-3">
-                    <span
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${stepDone ? "bg-neutral-900 text-white" : "bg-neutral-100 text-neutral-900"
-                        }`}
-                    >
-                      {stepDone ? <Check className="h-4 w-4" /> : step.id}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[15px] font-semibold leading-snug">{step.title}</p>
-                      <p className="text-xs text-neutral-500">{step.when}</p>
-                    </div>
-                    <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs text-neutral-700">
-                      <span className={`h-2 w-2 rounded-full ${step.dot}`} />
-                      {step.tag}
-                    </span>
-                  </div>
-
-                  {step.id === 1 ? (
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {breachedSections.map((s) => (
-                        <span key={s.name + s.course} className="rounded-lg bg-neutral-100 px-2.5 py-1 text-xs">
-                          {s.name.replace(" Section", "")}{" "}
-                          <span className="font-semibold text-[#8A1538]">{s.rate.toFixed(1)}%</span>
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    step.note && (
-                      <p className="mt-3 rounded-xl bg-neutral-100 px-3 py-2 text-[13px] leading-snug text-neutral-700">
-                        {step.note}
-                      </p>
-                    )
-                  )}
-
-                  <ul className="mt-1 divide-y divide-neutral-100">
-                    {step.items.map((it, i) => {
-                      const key = `${step.id}-${i}`;
-                      const done = !!checked[key];
-                      return (
-                        <li key={key}>
-                          <button
-                            type="button"
-                            role="checkbox"
-                            aria-checked={done}
-                            onClick={() => toggleCheck(key)}
-                            className="flex w-full items-start gap-3 py-3 text-left"
-                          >
-                            <span
-                              className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition ${done ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-300 bg-white"
-                                }`}
-                            >
-                              {done && <Check className="h-3.5 w-3.5" />}
-                            </span>
-                            <span className={`text-sm leading-snug ${done ? "text-neutral-500 line-through" : "text-neutral-800"}`}>
-                              <span className="font-semibold">{it.label}.</span> {it.text}
-                            </span>
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              );
-            })}
-
-            <button
-              type="button"
-              onClick={() => setShowIntervention(false)}
-              className="min-h-11 w-full rounded-xl bg-neutral-900 text-sm font-medium text-white transition hover:bg-neutral-700"
-            >
-              Close
-            </button>
-          </div>
-        </ModalShell>
-      )}
-
-      {/* ══════════ COMMENTS WINDOW ══════════ */}
-      {showFeedbackModal && (
-        <ModalShell
-          title="Student comments"
-          subtitle="Anonymous feedback on courses and teaching"
-          onClose={() => setShowFeedbackModal(false)}
-        >
-          <div className="space-y-3">
-            <div className="rounded-2xl bg-white p-4">
-              <div className="flex h-2 overflow-hidden rounded-full bg-neutral-100">
-                <div className="bg-[#8A1538]" style={{ width: `${(sentimentCount.negative / feedbackTotal) * 100}%` }} />
-                <div className="bg-neutral-300" style={{ width: `${(sentimentCount.neutral / feedbackTotal) * 100}%` }} />
-                <div className="bg-[#15803D]" style={{ width: `${(sentimentCount.positive / feedbackTotal) * 100}%` }} />
-              </div>
-
-              <div role="tablist" className="-mx-1 mt-4 flex gap-x-4 overflow-x-auto px-1">
-                {([
-                  ["all", "All", feedbackTotal, null, ""],
-                  ["negative", "Concerns", sentimentCount.negative, Frown, "text-[#C62828]"],
-                  ["neutral", "Neutral", sentimentCount.neutral, Meh, "text-neutral-500"],
-                  ["positive", "Positive", sentimentCount.positive, Smile, "text-[#15803D]"],
-                ] as const).map(([id, label, count, Face, tone]) => (
-                  <button
-                    key={id}
-                    type="button"
-                    role="tab"
-                    aria-selected={sentimentFilter === id}
-                    onClick={() => setSentimentFilter(id)}
-                    className={`flex shrink-0 items-center gap-1.5 border-b-2 pb-1.5 text-[13px] font-medium transition sm:text-sm ${sentimentFilter === id
-                      ? "border-neutral-900 text-neutral-900"
-                      : "border-transparent text-neutral-500 hover:text-neutral-900"
-                      }`}
-                  >
-                    {Face && <Face className={`h-4 w-4 ${tone}`} />}
-                    {label} <span className="tabular-nums">{count}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {filteredFeedback.map((fb) => {
-              const face =
-                fb.sentiment === "negative"
-                  ? { Icon: Frown, bg: "bg-red-50", fg: "text-[#C62828]" }
-                  : fb.sentiment === "positive"
-                    ? { Icon: Smile, bg: "bg-green-50", fg: "text-[#15803D]" }
-                    : { Icon: Meh, bg: "bg-neutral-100", fg: "text-neutral-500" };
-              const label =
-                fb.sentiment === "negative" ? "Concern" : fb.sentiment === "positive" ? "Positive" : "Neutral";
-              return (
-                <article key={fb.comment} className="flex gap-3 rounded-2xl bg-white p-4">
-                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${face.bg}`}>
-                    <face.Icon className={`h-6 w-6 ${face.fg}`} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <p className="text-sm font-semibold">{fb.category.replace(/ \(.*\)/, "")}</p>
-                      <Tip align="right" text="Sentiment score from -1 (very negative) to +1 (very positive).">
-                        <span className={`text-xs tabular-nums ${face.fg}`}>
-                          {label} · {fb.nlpScore > 0 ? `+${fb.nlpScore}` : fb.nlpScore}
-                        </span>
-                      </Tip>
-                    </div>
-                    <p className="text-xs text-neutral-500">{fb.theme}</p>
-                    <p className="mt-2.5 text-[15px] leading-relaxed text-neutral-800">&ldquo;{fb.comment}&rdquo;</p>
-                  </div>
-                </article>
-              );
-            })}
-
-            <div className="rounded-2xl border-l-4 border-[#F2B705] bg-white p-4">
-              <p className="text-sm font-semibold">Reminder</p>
-              <p className="mt-0.5 text-sm leading-snug text-neutral-700">
-                Use comments to improve courses. Do not use them to punish individual teachers.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setShowFeedbackModal(false)}
-              className="min-h-11 w-full rounded-xl bg-neutral-900 text-sm font-medium text-white transition hover:bg-neutral-700"
-            >
-              Close
-            </button>
-          </div>
-        </ModalShell>
-      )}
-
-      {/* ══════════ FILTERS WINDOW ══════════ */}
-      {showFilterModal && (
-        <ModalShell
-          title="Filters"
-          subtitle="Changes the whole dashboard"
-          onClose={() => setShowFilterModal(false)}
-          widthClass="sm:max-w-md"
-        >
-          <div className="space-y-3">
-            <div className="space-y-4 rounded-2xl bg-white p-4">
-              <div>
-                <label htmlFor="f-year" className="text-xs font-medium text-neutral-500">School year</label>
-                <select
-                  id="f-year"
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl bg-neutral-100 px-3 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-neutral-900/20"
+                <button
+                  type="button"
+                  onClick={() => setShowFilterModal(false)}
+                  className="min-h-11 flex-1 rounded-xl bg-neutral-900 text-sm font-medium text-white transition hover:bg-neutral-700"
                 >
-                  <option value="AY 2026–2027">AY 2026–2027 (Current)</option>
-                  <option value="AY 2025–2026">AY 2025–2026 (Past)</option>
-                  <option value="AY 2024–2025">AY 2024–2025 (Past)</option>
-                  <option value="AY 2023–2024">AY 2023–2024 (Past)</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="f-sem" className="text-xs font-medium text-neutral-500">Semester</label>
-                <select
-                  id="f-sem"
-                  value={selectedSemester}
-                  onChange={(e) => setSelectedSemester(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl bg-neutral-100 px-3 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-neutral-900/20"
-                >
-                  <option value="Semester 1">{baseTermData.isCurrentOrFuture ? "Semester 1 (Current)" : "Semester 1 (Done)"}</option>
-                  <option value="Semester 2">{baseTermData.isCurrentOrFuture ? "Semester 2 (Upcoming)" : "Semester 2 (Done)"}</option>
-                </select>
-              </div>
-
-              <div>
-                <p className="text-xs font-medium text-neutral-500">Year level</p>
-                <div className="mt-1.5 grid grid-cols-5 gap-1.5">
-                  {([
-                    ["All Year Levels", "All"],
-                    ["1st Year", "1st"],
-                    ["2nd Year", "2nd"],
-                    ["3rd Year", "3rd"],
-                    ["4th Year", "4th"],
-                  ] as const).map(([value, label]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => setSelectedYearLevel(value)}
-                      aria-pressed={selectedYearLevel === value}
-                      className={`min-h-10 rounded-xl text-sm font-medium transition ${selectedYearLevel === value
-                        ? "bg-neutral-900 text-white"
-                        : "bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
-                        }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <p className="text-xs font-medium text-neutral-500">Course type</p>
-                <div className="mt-1.5 grid grid-cols-3 gap-1.5">
-                  {([
-                    ["All Courses", "All"],
-                    ["Major / Professional IT", "Majors"],
-                    ["General Education", "Gen Ed"],
-                  ] as const).map(([value, label]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => setSelectedCourseType(value)}
-                      aria-pressed={selectedCourseType === value}
-                      className={`min-h-10 rounded-xl text-sm font-medium transition ${selectedCourseType === value
-                        ? "bg-neutral-900 text-white"
-                        : "bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
-                        }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
+                  Apply
+                </button>
               </div>
             </div>
-
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={resetAllFilters}
-                className="min-h-11 rounded-xl bg-white px-5 text-sm font-medium transition hover:bg-neutral-50"
-              >
-                Reset
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowFilterModal(false)}
-                className="min-h-11 flex-1 rounded-xl bg-neutral-900 text-sm font-medium text-white transition hover:bg-neutral-700"
-              >
-                Apply
-              </button>
-            </div>
-          </div>
-        </ModalShell>
-      )}
-    </div>
+          </ModalShell>
+        )}
+      </div>
     </>
   );
 }
