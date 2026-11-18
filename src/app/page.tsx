@@ -940,7 +940,7 @@ function TourCursor({ steps, onClose }: { steps: TourStep[]; onClose: () => void
   const [cursor, setCursor] = useState(() => ({ x: window.innerWidth * 0.5, y: window.innerHeight * 0.55 }));
   const [box, setBox] = useState<{ left: number; top: number; width: number; height: number } | null>(null);
   const [instant, setInstant] = useState(false);
-  const [auto, setAuto] = useState(false);
+  const [auto, setAuto] = useState(true);
   const [flip, setFlip] = useState({ x: false, y: false });
 
   const dirRef = useRef(1);
@@ -1198,10 +1198,14 @@ export default function Dashboard() {
     const contentTimer = setTimeout(() => {
       setShowContent(true);
     }, 2550);
+    const tourTimer = setTimeout(() => {
+      setTourActive(true);
+    }, 2800);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(removeTimer);
       clearTimeout(contentTimer);
+      clearTimeout(tourTimer);
     };
   }, []);
 
