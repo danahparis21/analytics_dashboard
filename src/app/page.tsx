@@ -445,11 +445,11 @@ const KPI_ICONS: Record<number, typeof GraduationCap> = {
   5: Calendar,
 };
 
-// Anonymized Department Teaching Clusters (per RA 10173 privacy rules)
+// Anonymized Department Teaching Rosters (per RA 10173 privacy rules)
 const ANONYMIZED_FACULTY_ROSTER = [
   {
     id: "CLUS-01",
-    title: "Instructional Cluster 1 (Object-Oriented Programming)",
+    title: "Object-Oriented Programming",
     courseCode: "CS 211",
     instructorAlias: "All sections (pooled)",
     courseType: "Major" as const,
@@ -467,7 +467,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
   },
   {
     id: "CLUS-02",
-    title: "Instructional Cluster 2 (Database Management System)",
+    title: "Database Management System",
     courseCode: "IT 211",
     instructorAlias: "All sections (pooled)",
     courseType: "Major" as const,
@@ -485,7 +485,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
   },
   {
     id: "CLUS-03",
-    title: "Instructional Cluster 3 (Mathematics in the Modern World)",
+    title: "Mathematics in the Modern World",
     courseCode: "GEd 102",
     instructorAlias: "All sections (pooled)",
     courseType: "GenEd" as const,
@@ -503,7 +503,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
   },
   {
     id: "CLUS-04",
-    title: "Instructional Cluster 4 (Web Systems and Technologies)",
+    title: "Web Systems and Technologies",
     courseCode: "IT 314",
     instructorAlias: "All sections (pooled)",
     courseType: "Major" as const,
@@ -521,7 +521,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
   },
   {
     id: "CLUS-05",
-    title: "Instructional Cluster 5 (Systems Integration and Architecture)",
+    title: "Systems Integration and Architecture",
     courseCode: "IT 312",
     instructorAlias: "All sections (pooled)",
     courseType: "Major" as const,
@@ -539,7 +539,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
   },
   {
     id: "CLUS-06",
-    title: "Instructional Cluster 6 (Information Assurance and Security)",
+    title: "Information Assurance and Security",
     courseCode: "IT 323",
     instructorAlias: "All sections (pooled)",
     courseType: "Major" as const,
@@ -557,7 +557,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
   },
   {
     id: "CLUS-07",
-    title: "Instructional Cluster 7 (Application Development and Emerging Technologies)",
+    title: "Application Development and Emerging Technologies",
     courseCode: "IT 331",
     instructorAlias: "All sections (pooled)",
     courseType: "Major" as const,
@@ -575,7 +575,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
   },
   {
     id: "CLUS-08",
-    title: "Instructional Cluster 8 (Capstone Project)",
+    title: "Capstone Project",
     courseCode: "IT 324, IT 411",
     instructorAlias: "All sections (pooled)",
     courseType: "Major" as const,
@@ -593,7 +593,7 @@ const ANONYMIZED_FACULTY_ROSTER = [
   },
   {
     id: "CLUS-09",
-    title: "Staffing Deficit (Unassigned Section Blocks)",
+    title: "Unassigned Section Blocks",
     courseCode: "CS 211, IT 314, GEd 102",
     instructorAlias: "Needs 3 Part-Time Teachers",
     courseType: "Major" as const,
@@ -700,7 +700,7 @@ const SEARCH_TARGETS: SearchTarget[] = [
   { id: "trend-chart", label: "Enrollment trend", hint: "Section", keywords: ["students", "forecast", "chart", "semester", "growth"], kind: "scroll" },
   { id: "year-levels", label: "Students by year level", hint: "Section", keywords: ["donut", "cohort", "1st", "2nd", "3rd", "4th"], kind: "scroll" },
   { id: "high-failure-sections", label: "Sections with high failure", hint: "Section", keywords: ["flagged", "failing", "midterm"], kind: "scroll" },
-  { id: "teaching-load", label: "Teaching load", hint: "Section", keywords: ["faculty", "teachers", "units", "clusters", "staffing", "shortage"], kind: "scroll" },
+  { id: "teaching-load", label: "Teaching load", hint: "Section", keywords: ["faculty", "teachers", "units", "courses", "staffing", "shortage"], kind: "scroll" },
   { id: "sete-scores", label: "SETE scores", hint: "Section", keywords: ["evaluation", "teaching", "effectiveness", "response", "pacing", "clarity", "fairness", "consultation", "syllabus"], kind: "scroll" },
   { id: "high-failure-courses", label: "High-failure courses", hint: "Section", keywords: ["bottleneck", "courses", "fail"], kind: "scroll" },
   { id: "plan", label: "Action plan", hint: "Opens window", keywords: ["alerts", "warnings", "interventions", "steps"], kind: "plan" },
@@ -784,8 +784,8 @@ const STATUS_STYLE: Record<string, { label: string; dot: string; text: string }>
 };
 
 const STATUS_TIP: Record<string, string> = {
-  "Full Load": "This cluster teaches 18 units, the standard load.",
-  "Overloaded": "This cluster teaches more than the standard 18 units.",
+  "Full Load": "This course assignment has 18 units, the standard load.",
+  "Overloaded": "This course assignment has more than the standard 18 units.",
   "Unassigned": "These sections do not have a teacher yet.",
   "Needs 3 Part-Time Teachers": "3 sections have no teacher yet. Hire 3 part-time teachers.",
 };
@@ -1106,7 +1106,7 @@ export default function Dashboard() {
     return (
       baseTermData.bottleneckCourses.some((c) => c.code.toLowerCase().includes(searchText) || c.name.toLowerCase().includes(searchText)) ||
       baseTermData.flaggedSections.some((x) => x.name.toLowerCase().includes(searchText) || x.course.toLowerCase().includes(searchText)) ||
-      ANONYMIZED_FACULTY_ROSTER.some((f) => f.title.toLowerCase().includes(searchText))
+      ANONYMIZED_FACULTY_ROSTER.some((f) => f.title.toLowerCase().includes(searchText) || f.courseCode.toLowerCase().includes(searchText))
     );
   }, [searchText, baseTermData]);
   // If the text names a section (like "SETE") and no course, leave the lists unfiltered
@@ -1154,7 +1154,7 @@ export default function Dashboard() {
     }
     if (effectiveQuery.trim()) {
       const q = effectiveQuery.toLowerCase();
-      list = list.filter(f => f.title.toLowerCase().includes(q));
+      list = list.filter(f => f.title.toLowerCase().includes(q) || f.courseCode.toLowerCase().includes(q));
     }
     return list;
   }, [selectedCourseType, effectiveQuery]);
@@ -2174,7 +2174,7 @@ export default function Dashboard() {
                   <table className="w-full text-left text-sm">
                     <thead>
                       <tr className="border-b border-neutral-100 text-xs text-neutral-500">
-                        <th className="pb-2 pr-2 font-medium">Cluster</th>
+                        <th className="pb-2 pr-2 font-medium">Course</th>
                         <th className="pb-2 pr-2 text-center font-medium">Type</th>
                         <th className="pb-2 pr-2 text-center font-medium">Sections</th>
                         <th className="pb-2 pr-2 text-center font-medium">Units</th>
@@ -2191,7 +2191,7 @@ export default function Dashboard() {
                             className={`cursor-pointer transition ${isRowSelected ? "bg-neutral-100" : "hover:bg-neutral-50"}`}
                           >
                             <td className="rounded-l-lg py-2.5 pl-2 pr-2">
-                              <span className="font-medium">{f.title.replace("Instructional ", "")}</span>
+                              <span className="font-medium">{f.title}</span>
                               <span className="ml-2 text-xs text-neutral-500">{f.courseCode}</span>
                             </td>
                             <td className="whitespace-nowrap py-2.5 pr-2 text-center text-neutral-600">{f.courseType === "GenEd" ? "Gen Ed" : f.courseType}</td>
@@ -2220,7 +2220,7 @@ export default function Dashboard() {
                         >
                           <span className="min-w-0">
                             <span className="block truncate text-[13px] font-medium leading-snug">
-                              {f.title.replace("Instructional ", "")}
+                              {f.title}
                             </span>
                             <span className="block truncate text-[11px] leading-snug text-neutral-500">
                               {f.courseCode} · {f.sections} sections · {f.units} units
@@ -2233,7 +2233,7 @@ export default function Dashboard() {
                   })}
                 </ul>
                 {filteredFaculty.length === 0 && (
-                  <p className="py-6 text-center text-sm text-neutral-500">No clusters to show.</p>
+                  <p className="py-6 text-center text-sm text-neutral-500">No courses to show.</p>
                 )}
 
                 <div className="mt-3 grid grid-cols-3 gap-2 border-t border-neutral-100 pt-3 text-center">
@@ -2266,7 +2266,7 @@ export default function Dashboard() {
                       <h3 className="text-base font-semibold">SETE scores</h3>
                       <p className="truncate text-sm text-neutral-500">
                         {selectedFaculty
-                          ? selectedFaculty.title.replace("Instructional ", "")
+                          ? `${selectedFaculty.title} · Goal 85%`
                           : "Department average · Goal 85%"}
                       </p>
                     </div>
