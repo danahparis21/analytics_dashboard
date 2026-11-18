@@ -937,11 +937,12 @@ const findTourTarget = (selector: string): HTMLElement | null => {
 
 function TourCursor({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
   const [index, setIndex] = useState(0);
-  const [cursor, setCursor] = useState(() => ({ x: window.innerWidth * 0.5, y: window.innerHeight * 0.55 }));
+  const [cursor, setCursor] = useState(() => ({ x: typeof window !== "undefined" ? window.innerWidth * 0.5 : 500, y: typeof window !== "undefined" ? window.innerHeight * 0.55 : 400 }));
   const [box, setBox] = useState<{ left: number; top: number; width: number; height: number } | null>(null);
   const [instant, setInstant] = useState(false);
   const [auto, setAuto] = useState(true);
-  const [flip, setFlip] = useState({ x: false, y: false });
+  const [isMobile, setIsMobile] = useState(false);
+  const [bubblePos, setBubblePos] = useState({ x: 16, y: 16 });
 
   const dirRef = useRef(1);
   const arrivedRef = useRef(false);
@@ -953,16 +954,32 @@ function TourCursor({ steps, onClose }: { steps: TourStep[]; onClose: () => void
 
   const reduceMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  useEffect(() => {
+    const updateSize = () => setIsMobile(window.innerWidth < 640);
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
+
   const place = useCallback((el: HTMLElement, snap: boolean) => {
     const r = el.getBoundingClientRect();
     const x = Math.round(r.left + Math.min(r.width / 2, 180));
     const y = Math.round(r.top + Math.min(r.height / 2, 70));
-    const bw = bubbleRef.current?.offsetWidth ?? 280;
+    const bw = bubbleRef.current?.offsetWidth ?? 300;
     const bh = bubbleRef.current?.offsetHeight ?? 170;
     setInstant(snap);
     setBox({ left: r.left, top: r.top, width: r.width, height: r.height });
     setCursor({ x, y });
-    setFlip({ x: x + 24 + bw > window.innerWidth - 12, y: y + 28 + bh > window.innerHeight - 12 });
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const rawX = x + 24 + bw > vw - 16 ? x - bw - 16 : x + 24;
+    const rawY = y + 28 + bh > vh - 16 ? y - bh - 16 : y + 28;
+
+    setBubblePos({
+      x: Math.max(16, Math.min(vw - bw - 16, rawX)),
+      y: Math.max(16, Math.min(vh - bh - 16, rawY)),
+    });
   }, []);
 
   // Go to a step: scroll the target into view, wait until it stops moving, then glide the cursor to it
@@ -983,7 +1000,7 @@ function TourCursor({ steps, onClose }: { steps: TourStep[]; onClose: () => void
     const r0 = el.getBoundingClientRect();
     el.scrollIntoView({
       behavior: reduceMotion ? "auto" : "smooth",
-      block: r0.height > window.innerHeight * 0.7 ? "start" : "center",
+      block: isMobile ? "center" : r0.height > window.innerHeight * 0.7 ? "start" : "center",
     });
     let last = el.getBoundingClientRect().top;
     let still = 0;
@@ -1004,7 +1021,7 @@ function TourCursor({ steps, onClose }: { steps: TourStep[]; onClose: () => void
       cancelled = true;
       cancelAnimationFrame(raf);
     };
-  }, [index, steps, place, reduceMotion]);
+  }, [index, steps, place, reduceMotion, isMobile]);
 
   // Keep the cursor on its target if the person scrolls or resizes
   useEffect(() => {
@@ -1069,9 +1086,9 @@ function TourCursor({ steps, onClose }: { steps: TourStep[]; onClose: () => void
         <div
           className="absolute rounded-2xl border-2 border-[#8A1538]"
           style={{
-            left: box.left - 6,
+            left: Math.max(2, box.left - 6),
             top: box.top - 6,
-            width: box.width + 12,
+            width: Math.min(typeof window !== "undefined" ? window.innerWidth - 4 : 400, box.width + 12),
             height: box.height + 12,
             boxShadow: "0 0 0 6px rgba(138,21,56,0.12)",
             transition: instant || reduceMotion ? "none" : "all 600ms cubic-bezier(.22,1,.36,1)",
@@ -1079,9 +1096,9 @@ function TourCursor({ steps, onClose }: { steps: TourStep[]; onClose: () => void
         />
       )}
 
-      {/* Cursor + bubble travel together */}
+      {/* Cursor arrow + ripple */}
       <div
-        className="absolute left-0 top-0"
+        className="pointer-events-none absolute left-0 top-0"
         style={{
           transform: `translate3d(${cursor.x}px, ${cursor.y}px, 0)`,
           transition: instant || reduceMotion ? "none" : "transform 900ms cubic-bezier(.22,1,.36,1)",
@@ -1102,55 +1119,73 @@ function TourCursor({ steps, onClose }: { steps: TourStep[]; onClose: () => void
             strokeLinejoin="round"
           />
         </svg>
+      </div>
 
-        <div
-          ref={bubbleRef}
-          className="pointer-events-auto absolute w-[min(280px,calc(100vw-24px))] rounded-3xl bg-neutral-900 px-5 py-4 text-white shadow-2xl"
-          style={{
-            left: flip.x ? undefined : 22,
-            right: flip.x ? 22 : undefined,
-            top: flip.y ? undefined : 28,
-            bottom: flip.y ? 28 : undefined,
-          }}
-        >
-          <div key={index} style={{ animation: "tour-fade 350ms ease-out both" }}>
-            <p className="text-sm font-semibold text-[#F59BB0]">
-              {TOUR_LABEL} · {step.title}
-            </p>
-            <p className="mt-1 text-[17px] font-medium leading-snug">{step.text}</p>
-          </div>
-          <div className="mt-3.5 flex items-center justify-between gap-2 text-xs">
-            <span className="tabular-nums text-neutral-400">
-              {index + 1} of {steps.length}
-            </span>
-            <div className="flex items-center gap-1">
-              <button type="button" onClick={() => closeRef.current()} className="rounded-full px-2 py-1 text-neutral-400 transition hover:text-white">
-                Skip
-              </button>
-              <button
-                type="button"
-                onClick={() => setAuto((a) => !a)}
-                aria-pressed={auto}
-                className={`rounded-full px-2 py-1 transition hover:text-white ${auto ? "text-[#F59BB0]" : "text-neutral-400"}`}
-              >
-                {auto ? "Pause" : "Auto"}
-              </button>
-              <button
-                type="button"
-                onClick={() => go(-1)}
-                disabled={index === 0}
-                className="rounded-full px-2 py-1 text-neutral-300 transition hover:text-white disabled:opacity-30"
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                onClick={() => go(1)}
-                className="rounded-full bg-white px-3 py-1 font-semibold text-neutral-900 transition hover:bg-neutral-200"
-              >
-                {isLast ? "Done" : "Next"}
-              </button>
-            </div>
+      {/* Tour dialogue card:
+          - Mobile: fixed above the bottom tab bar, centered, 100% visible, thumb-friendly
+          - Desktop: smoothly glides near cursor, boundary-clamped so it never overflows any edge
+      */}
+      <div
+        ref={bubbleRef}
+        className="pointer-events-auto z-[90] rounded-3xl bg-neutral-900 px-5 py-4 text-white shadow-2xl transition-all duration-300"
+        style={
+          isMobile
+            ? {
+                position: "fixed",
+                bottom: "calc(env(safe-area-inset-bottom, 0px) + 76px)",
+                left: "16px",
+                right: "16px",
+                maxWidth: "420px",
+                margin: "0 auto",
+              }
+            : {
+                position: "absolute",
+                left: 0,
+                top: 0,
+                width: "min(320px, calc(100vw - 32px))",
+                transform: `translate3d(${bubblePos.x}px, ${bubblePos.y}px, 0)`,
+                transition: instant || reduceMotion ? "none" : "transform 900ms cubic-bezier(.22,1,.36,1)",
+                willChange: "transform",
+              }
+        }
+      >
+        <div key={index} style={{ animation: "tour-fade 350ms ease-out both" }}>
+          <p className="text-sm font-semibold text-[#F59BB0]">
+            {TOUR_LABEL} · {step.title}
+          </p>
+          <p className="mt-1 text-[15px] sm:text-[17px] font-medium leading-snug">{step.text}</p>
+        </div>
+        <div className="mt-3.5 flex items-center justify-between gap-2 text-xs">
+          <span className="tabular-nums text-neutral-400">
+            {index + 1} of {steps.length}
+          </span>
+          <div className="flex items-center gap-1">
+            <button type="button" onClick={() => closeRef.current()} className="rounded-full px-2 py-1 text-neutral-400 transition hover:text-white">
+              Skip
+            </button>
+            <button
+              type="button"
+              onClick={() => setAuto((a) => !a)}
+              aria-pressed={auto}
+              className={`rounded-full px-2 py-1 transition hover:text-white ${auto ? "text-[#F59BB0]" : "text-neutral-400"}`}
+            >
+              {auto ? "Pause" : "Auto"}
+            </button>
+            <button
+              type="button"
+              onClick={() => go(-1)}
+              disabled={index === 0}
+              className="rounded-full px-2 py-1 text-neutral-300 transition hover:text-white disabled:opacity-30"
+            >
+              Back
+            </button>
+            <button
+              type="button"
+              onClick={() => go(1)}
+              className="rounded-full bg-white px-3 py-1 font-semibold text-neutral-900 transition hover:bg-neutral-200"
+            >
+              {isLast ? "Done" : "Next"}
+            </button>
           </div>
         </div>
       </div>
