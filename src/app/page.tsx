@@ -2305,16 +2305,43 @@ export default function Dashboard() {
                               <span className="text-neutral-700">{c.name}</span>
                               <span className="font-semibold tabular-nums">{c.score}%</span>
                             </div>
-                            <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
+                            <div className="relative flex items-center py-0.5">
+                              <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-100">
+                                <div
+                                  className={`h-full rounded-full transition-all duration-300 ${low ? "bg-[#F2B705]" : "bg-neutral-900"}`}
+                                  style={{ width: `${Math.min(100, Math.max(0, c.score))}%` }}
+                                />
+                              </div>
+                              {/* Bullet chart target line at 85% */}
                               <div
-                                className={`h-full rounded-full ${low ? "bg-[#F2B705]" : "bg-neutral-900"}`}
-                                style={{ width: `${c.score}%` }}
+                                className="pointer-events-none absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-3.5 w-[2.5px] rounded-full bg-neutral-900 ring-1 ring-white shadow-xs z-10"
+                                style={{ left: "85%" }}
+                                title="Goal: 85%"
+                                aria-hidden="true"
                               />
+                            </div>
+                            <div className="mt-0.5 flex justify-between text-[10px] text-neutral-400">
+                              <span>0</span>
+                              <span>100</span>
                             </div>
                           </div>
                         </Tip>
                       );
                     })}
+                  </div>
+
+                  {/* Bullet chart legend */}
+                  <div className="mt-3 flex items-center justify-between border-t border-neutral-100 pt-2.5 text-xs text-neutral-500">
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1.5">
+                        <span className="inline-block h-2 w-3 rounded-xs bg-neutral-900" />
+                        <span>Score</span>
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="inline-block h-3.5 w-[2.5px] rounded-full bg-neutral-900 ring-1 ring-white" />
+                        <span>Goal (85%)</span>
+                      </span>
+                    </div>
                   </div>
 
                   <div className="mt-4 space-y-1.5 border-t border-neutral-100 pt-3 text-xs text-neutral-500">
@@ -2343,7 +2370,7 @@ export default function Dashboard() {
                 {/* High-failure courses */}
                 <section id="high-failure-courses" className="scroll-mt-24 rounded-2xl bg-white p-4 sm:p-5">
                   <h3 className="text-base font-semibold">High-failure courses</h3>
-                  <p className="text-sm text-neutral-500">Midterm failure rate</p>
+                  <p className="text-sm text-neutral-500">Midterm failure rate · Limit 20%</p>
                   <div className="mt-4 space-y-3.5">
                     {filteredBottlenecks.map((s) => {
                       const critical = s.failRate >= 20;
@@ -2362,11 +2389,24 @@ export default function Dashboard() {
                                 {s.failRate}%
                               </span>
                             </div>
-                            <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
+                            <div className="relative flex items-center py-0.5">
+                              <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-100">
+                                <div
+                                  className={`h-full rounded-full transition-all duration-300 ${critical ? "bg-[#8A1538]" : "bg-[#F2B705]"}`}
+                                  style={{ width: `${Math.min(100, Math.max(0, (s.failRate / 30) * 100))}%` }}
+                                />
+                              </div>
+                              {/* Bullet chart limit line at 20% (66.67% of 30% scale) */}
                               <div
-                                className={`h-full rounded-full ${critical ? "bg-[#8A1538]" : "bg-[#F2B705]"}`}
-                                style={{ width: `${(s.failRate / 30) * 100}%` }}
+                                className="pointer-events-none absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-3.5 w-[2.5px] rounded-full bg-neutral-900 ring-1 ring-white shadow-xs z-10"
+                                style={{ left: `${(20 / 30) * 100}%` }}
+                                title="Limit: 20%"
+                                aria-hidden="true"
                               />
+                            </div>
+                            <div className="mt-0.5 flex justify-between text-[10px] text-neutral-400">
+                              <span>0%</span>
+                              <span>30%</span>
                             </div>
                           </div>
                         </Tip>
@@ -2376,6 +2416,22 @@ export default function Dashboard() {
                       <p className="py-4 text-center text-sm text-neutral-500">No courses to show.</p>
                     )}
                   </div>
+
+                  {/* Bullet chart legend */}
+                  {filteredBottlenecks.length > 0 && (
+                    <div className="mt-3 flex items-center justify-between border-t border-neutral-100 pt-2.5 text-xs text-neutral-500">
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1.5">
+                          <span className="inline-block h-2 w-3 rounded-xs bg-[#8A1538]" />
+                          <span>Failure rate</span>
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <span className="inline-block h-3.5 w-[2.5px] rounded-full bg-neutral-900 ring-1 ring-white" />
+                          <span>Limit (20%)</span>
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </section>
               </div>
             </div>
