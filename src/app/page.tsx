@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import {
   AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell, ReferenceLine,
@@ -702,11 +702,57 @@ const SEARCH_TARGETS: SearchTarget[] = [
   { id: "high-failure-sections", label: "Sections with high failure", hint: "Section", keywords: ["flagged", "failing", "midterm"], kind: "scroll" },
   { id: "teaching-load", label: "Teaching load", hint: "Section", keywords: ["faculty", "teachers", "units", "courses", "staffing", "shortage"], kind: "scroll" },
   { id: "sete-scores", label: "SETE scores", hint: "Section", keywords: ["evaluation", "teaching", "effectiveness", "response", "pacing", "clarity", "fairness", "consultation", "syllabus"], kind: "scroll" },
+  { id: "sete-heatmap", label: "SETE by course", hint: "Section", keywords: ["heatmap", "dimensions", "courses", "pacing", "clarity", "fairness"], kind: "scroll" },
+  { id: "course-passing-trend", label: "Passing rate by course", hint: "Section", keywords: ["trend", "courses", "pass", "passing", "goal", "year"], kind: "scroll" },
   { id: "high-failure-courses", label: "High-failure courses", hint: "Section", keywords: ["bottleneck", "courses", "fail"], kind: "scroll" },
   { id: "plan", label: "Action plan", hint: "Opens window", keywords: ["alerts", "warnings", "interventions", "steps"], kind: "plan" },
   { id: "comments", label: "Student comments", hint: "Opens window", keywords: ["feedback", "sentiment", "nlp"], kind: "comments" },
   { id: "formulas", label: "KPI formulas", hint: "Opens window", keywords: ["definitions", "computation"], kind: "formulas" },
 ];
+
+// Heatmap cell colour: grays = goal met (darker = stronger), reds = below goal (darker = further below)
+const heatCell = (score: number) =>
+  score >= 90
+    ? "bg-neutral-700 text-white"
+    : score >= 85
+      ? "bg-neutral-200 text-neutral-900"
+      : score >= 80
+        ? "bg-[#8A1538]/20 text-neutral-900"
+        : "bg-[#8A1538] text-white";
+
+// SAMPLE DATA: passing rate (%) per course per academic year. Replace with registrar figures.
+// The last value is the current year to date (Semester 1 only).
+const PASSING_YEAR_LABELS = ["2023–2024", "2024–2025", "2025–2026", "2026–2027 (to date)"];
+const COURSE_NAME_BY_CODE: Record<string, string> = {
+  "CS 211": "Object-Oriented Programming",
+  "IT 211": "Database Management System",
+  "GEd 102": "Mathematics in the Modern World",
+  "IT 314": "Web Systems and Technologies",
+  "IT 312": "Systems Integration and Architecture",
+  "IT 323": "Information Assurance and Security",
+  "IT 331": "Application Development and Emerging Technologies",
+  "IT 324": "Capstone Project",
+};
+const COURSE_PASSING_BY_YEAR: Record<string, number[]> = {
+  "CS 211": [82.7, 83.8, 85.4, 84.6],
+  "IT 314": [83.8, 85.0, 86.5, 85.6],
+  "GEd 102": [84.6, 85.5, 86.4, 87.4],
+  "IT 211": [91.5, 92.4, 93.2, 93.8],
+  "IT 312": [92.8, 93.5, 94.1, 94.6],
+  "IT 323": [93.5, 94.0, 94.8, 95.2],
+  "IT 331": [92.0, 92.9, 93.6, 94.2],
+  "IT 324": [95.0, 95.6, 96.0, 96.4],
+};
+const COURSE_LINE_COLORS: Record<string, string> = {
+  "CS 211": "#8A1538",
+  "IT 314": "#C2506B",
+  "GEd 102": "#E39AAB",
+  "IT 211": "#171717",
+  "IT 312": "#525252",
+  "IT 323": "#8A8D93",
+  "IT 331": "#B5B7BC",
+  "IT 324": "#D4D4D8",
+};
 
 // ─── SMALL SHARED PIECES ─────────────────────────────────────────────────────
 
@@ -855,6 +901,263 @@ function ModalShell({
 
 // ─── MAIN DASHBOARD ──────────────────────────────────────────────────────────
 
+// ─── TUTORIAL: roaming cursor ────────────────────────────────────────────────
+
+type TourStep = { selector: string; title: string; text: string };
+
+const TOUR_STEPS: TourStep[] = [
+  { selector: '[data-tour="search"]', title: "Search", text: "Type a course, or a section like SETE, to jump straight to it." },
+  { selector: '[data-tour="filters"]', title: "Filters", text: "Click here to change the semester, year level, or course type." },
+  { selector: '[data-tour="print"]', title: "Export", text: "Click here to print or save this report." },
+  { selector: '[data-tour="action-plan"]', title: "Warnings", text: "Click here to see the action plan for each warning." },
+  { selector: '[data-tour="kpi-first"]', title: "KPI card", text: "Click a KPI card to view its trend. The top left shows how far it is from the goal." },
+  { selector: '[data-tour="kpi-info"]', title: "Formula", text: "Click the info icon to see how this KPI is computed." },
+  { selector: "#trend-chart", title: "Enrollment", text: "This chart shows students per semester, with a forecast. Click a point to see the staffing." },
+  { selector: "#year-levels", title: "Year levels", text: "Click a year level to filter the whole dashboard." },
+  { selector: "#high-failure-sections", title: "Sections that need help", text: "This lists the sections with high midterm failure." },
+  { selector: '[data-tour="teaching-row"]', title: "Teaching load", text: "Click a course here to view its individual SETE scores." },
+  { selector: "#sete-heatmap", title: "SETE by course", text: "Red cells are below the goal. They show which SETE dimension needs work." },
+  { selector: '[data-tour="sete-comments"]', title: "SETE comments", text: "Click here to read the student comments behind the scores." },
+  { selector: "#high-failure-courses", title: "High-failure courses", text: "These courses have the highest midterm failure. The line marks the 20% limit." },
+  { selector: "#course-passing-trend", title: "Passing rate", text: "This chart shows the passing rate per course. Pick a course to focus on it." },
+];
+
+const TOUR_LABEL = "Guide";
+
+// First matching element that is actually on screen (skips hidden ones, like the sidebar on phones)
+const findTourTarget = (selector: string): HTMLElement | null => {
+  const nodes = Array.from(document.querySelectorAll<HTMLElement>(selector));
+  return (
+    nodes.find((n) => {
+      const r = n.getBoundingClientRect();
+      return r.width > 0 && r.height > 0 && getComputedStyle(n).visibility !== "hidden";
+    }) ?? null
+  );
+};
+
+function TourCursor({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
+  const [index, setIndex] = useState(0);
+  const [cursor, setCursor] = useState(() => ({ x: window.innerWidth * 0.5, y: window.innerHeight * 0.55 }));
+  const [box, setBox] = useState<{ left: number; top: number; width: number; height: number } | null>(null);
+  const [instant, setInstant] = useState(false);
+  const [auto, setAuto] = useState(false);
+  const [flip, setFlip] = useState({ x: false, y: false });
+
+  const dirRef = useRef(1);
+  const arrivedRef = useRef(false);
+  const bubbleRef = useRef<HTMLDivElement>(null);
+  const indexRef = useRef(index);
+  indexRef.current = index;
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+
+  const reduceMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const place = useCallback((el: HTMLElement, snap: boolean) => {
+    const r = el.getBoundingClientRect();
+    const x = Math.round(r.left + Math.min(r.width / 2, 180));
+    const y = Math.round(r.top + Math.min(r.height / 2, 70));
+    const bw = bubbleRef.current?.offsetWidth ?? 280;
+    const bh = bubbleRef.current?.offsetHeight ?? 170;
+    setInstant(snap);
+    setBox({ left: r.left, top: r.top, width: r.width, height: r.height });
+    setCursor({ x, y });
+    setFlip({ x: x + 24 + bw > window.innerWidth - 12, y: y + 28 + bh > window.innerHeight - 12 });
+  }, []);
+
+  // Go to a step: scroll the target into view, wait until it stops moving, then glide the cursor to it
+  useEffect(() => {
+    const el = findTourTarget(steps[index].selector);
+    if (!el) {
+      const next = index + dirRef.current;
+      if (next >= steps.length) closeRef.current();
+      else if (next < 0) {
+        dirRef.current = 1;
+        setIndex(index + 1);
+      } else setIndex(next);
+      return;
+    }
+    arrivedRef.current = false;
+    let cancelled = false;
+    let raf = 0;
+    const r0 = el.getBoundingClientRect();
+    el.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: r0.height > window.innerHeight * 0.7 ? "start" : "center",
+    });
+    let last = el.getBoundingClientRect().top;
+    let still = 0;
+    let frames = 0;
+    const tick = () => {
+      if (cancelled) return;
+      const t = el.getBoundingClientRect().top;
+      still = Math.abs(t - last) < 0.5 ? still + 1 : 0;
+      last = t;
+      frames += 1;
+      if (still >= 6 || frames > 100) {
+        place(el, false);
+        arrivedRef.current = true;
+      } else raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+    };
+  }, [index, steps, place, reduceMotion]);
+
+  // Keep the cursor on its target if the person scrolls or resizes
+  useEffect(() => {
+    let raf = 0;
+    const update = () => {
+      if (!arrivedRef.current) return;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const el = findTourTarget(steps[indexRef.current].selector);
+        if (el) place(el, true);
+      });
+    };
+    window.addEventListener("scroll", update, { passive: true, capture: true });
+    window.addEventListener("resize", update);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", update);
+    };
+  }, [steps, place]);
+
+  const go = (d: 1 | -1) => {
+    const n = indexRef.current + d;
+    if (n < 0) return;
+    dirRef.current = d;
+    if (n >= steps.length) closeRef.current();
+    else setIndex(n);
+  };
+  const goRef = useRef(go);
+  goRef.current = go;
+
+  // Keyboard: arrows move, Esc closes
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeRef.current();
+      else if (e.key === "ArrowRight") goRef.current(1);
+      else if (e.key === "ArrowLeft") goRef.current(-1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Auto play
+  useEffect(() => {
+    if (!auto) return;
+    const t = window.setTimeout(() => goRef.current(1), 5500);
+    return () => window.clearTimeout(t);
+  }, [auto, index]);
+
+  const step = steps[index];
+  const isLast = index === steps.length - 1;
+
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[80] print:hidden" role="dialog" aria-label="Dashboard tutorial">
+      <style>{`
+        @keyframes tour-ripple { 0% { transform: scale(.3); opacity: .55; } 100% { transform: scale(1.8); opacity: 0; } }
+        @keyframes tour-fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+      `}</style>
+
+      {/* Highlight around the target */}
+      {box && (
+        <div
+          className="absolute rounded-2xl border-2 border-[#8A1538]"
+          style={{
+            left: box.left - 6,
+            top: box.top - 6,
+            width: box.width + 12,
+            height: box.height + 12,
+            boxShadow: "0 0 0 6px rgba(138,21,56,0.12)",
+            transition: instant || reduceMotion ? "none" : "all 600ms cubic-bezier(.22,1,.36,1)",
+          }}
+        />
+      )}
+
+      {/* Cursor + bubble travel together */}
+      <div
+        className="absolute left-0 top-0"
+        style={{
+          transform: `translate3d(${cursor.x}px, ${cursor.y}px, 0)`,
+          transition: instant || reduceMotion ? "none" : "transform 900ms cubic-bezier(.22,1,.36,1)",
+          willChange: "transform",
+        }}
+      >
+        <span
+          key={index}
+          className="absolute -left-4 -top-4 h-8 w-8 rounded-full bg-[#8A1538]/40"
+          style={{ animation: "tour-ripple 700ms ease-out 900ms both" }}
+        />
+        <svg className="absolute drop-shadow-md" style={{ left: -3, top: -2 }} width="24" height="30" viewBox="0 0 24 30" fill="none" aria-hidden="true">
+          <path
+            d="M3.2 2.4L3.2 22.4L8.6 17.6L12.2 26.2L15.6 24.8L12.1 16.4L19.4 16L3.2 2.4Z"
+            fill="#171717"
+            stroke="#fff"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+        </svg>
+
+        <div
+          ref={bubbleRef}
+          className="pointer-events-auto absolute w-[min(280px,calc(100vw-24px))] rounded-3xl bg-neutral-900 px-5 py-4 text-white shadow-2xl"
+          style={{
+            left: flip.x ? undefined : 22,
+            right: flip.x ? 22 : undefined,
+            top: flip.y ? undefined : 28,
+            bottom: flip.y ? 28 : undefined,
+          }}
+        >
+          <div key={index} style={{ animation: "tour-fade 350ms ease-out both" }}>
+            <p className="text-sm font-semibold text-[#F59BB0]">
+              {TOUR_LABEL} · {step.title}
+            </p>
+            <p className="mt-1 text-[17px] font-medium leading-snug">{step.text}</p>
+          </div>
+          <div className="mt-3.5 flex items-center justify-between gap-2 text-xs">
+            <span className="tabular-nums text-neutral-400">
+              {index + 1} of {steps.length}
+            </span>
+            <div className="flex items-center gap-1">
+              <button type="button" onClick={() => closeRef.current()} className="rounded-full px-2 py-1 text-neutral-400 transition hover:text-white">
+                Skip
+              </button>
+              <button
+                type="button"
+                onClick={() => setAuto((a) => !a)}
+                aria-pressed={auto}
+                className={`rounded-full px-2 py-1 transition hover:text-white ${auto ? "text-[#F59BB0]" : "text-neutral-400"}`}
+              >
+                {auto ? "Pause" : "Auto"}
+              </button>
+              <button
+                type="button"
+                onClick={() => go(-1)}
+                disabled={index === 0}
+                className="rounded-full px-2 py-1 text-neutral-300 transition hover:text-white disabled:opacity-30"
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                onClick={() => go(1)}
+                className="rounded-full bg-white px-3 py-1 font-semibold text-neutral-900 transition hover:bg-neutral-200"
+              >
+                {isLast ? "Done" : "Next"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const [chartView, setChartView] = useState<"forecast" | "actual">("forecast");
   const [activeKpiId, setActiveKpiId] = useState<number | null>(null);
@@ -865,6 +1168,8 @@ export default function Dashboard() {
   const [selectedFacultyId, setSelectedFacultyId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [hiddenCourseLines, setHiddenCourseLines] = useState<string[]>([]);
+  const [selectedPassingCourseFilter, setSelectedPassingCourseFilter] = useState<string>("all");
 
   // Linked Global Filters
   const [selectedYear, setSelectedYear] = useState("AY 2026–2027");
@@ -875,6 +1180,7 @@ export default function Dashboard() {
 
   // Sidebar collapsible state
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [tourActive, setTourActive] = useState(false);
 
   // Splash / Loading Screen (starts in red with logo fading in, then fades out to dashboard)
   const [isLoading, setIsLoading] = useState(true);
@@ -1165,6 +1471,46 @@ export default function Dashboard() {
     return ANONYMIZED_FACULTY_ROSTER.find(f => f.id === selectedFacultyId) ?? null;
   }, [selectedFacultyId]);
 
+  // SETE heatmap: courses (columns) x 5 SETE dimensions (rows)
+  const heatmapCourses = useMemo(() => {
+    let list = ANONYMIZED_FACULTY_ROSTER.filter((f) => f.id !== "CLUS-09"); // staffing gap is not a course
+    if (selectedCourseType === "Major / Professional IT") list = list.filter((f) => f.courseType === "Major");
+    else if (selectedCourseType === "General Education") list = list.filter((f) => f.courseType === "GenEd");
+    return list;
+  }, [selectedCourseType]);
+
+  const heatmapRows = useMemo(() => {
+    const dims = ANONYMIZED_FACULTY_ROSTER[0].seteDimensions.map((d) => ({ code: d.code, name: d.name }));
+    return dims.map((d) => {
+      const scores = heatmapCourses.map((f) => f.seteDimensions.find((x) => x.code === d.code)?.score ?? null);
+      const valid = scores.filter((v): v is number => v !== null);
+      const avg = valid.length ? valid.reduce((a, b) => a + b, 0) / valid.length : null;
+      return { ...d, scores, avg };
+    });
+  }, [heatmapCourses]);
+
+  const weakestDim = useMemo(() => {
+    const withAvg = heatmapRows.filter((r): r is typeof r & { avg: number } => r.avg !== null);
+    return withAvg.length ? withAvg.reduce((lo, r) => (r.avg < lo.avg ? r : lo)) : null;
+  }, [heatmapRows]);
+
+  // Passing rate per course per academic year (courses follow the course-type filter)
+  const passingCourseCodes = useMemo(
+    () => heatmapCourses.map((f) => f.courseCode.split(",")[0].trim()).filter((c) => COURSE_PASSING_BY_YEAR[c]),
+    [heatmapCourses]
+  );
+  const coursePassingTrend = useMemo(
+    () =>
+      PASSING_YEAR_LABELS.map((label, i) => {
+        const row: Record<string, string | number> = { year: label };
+        passingCourseCodes.forEach((code) => {
+          row[code] = COURSE_PASSING_BY_YEAR[code][i];
+        });
+        return row;
+      }),
+    [passingCourseCodes]
+  );
+
   const selectedResponse = selectedFaculty ? CLUSTER_RESPONSE[selectedFaculty.id] ?? null : null;
 
   const displayedSeteDimensions = useMemo(() => {
@@ -1348,7 +1694,7 @@ export default function Dashboard() {
   };
 
   const searchBox = (
-    <div className="relative">
+    <div className="relative" data-tour="search">
       <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
       <input
         type="text"
@@ -1429,6 +1775,7 @@ export default function Dashboard() {
     return (
       <div
         key={def.id}
+        data-tour={def.id === 1 ? "kpi-first" : undefined}
         className={`group/tip relative rounded-2xl bg-white transition ${isSelected ? "ring-2 ring-[#8A1538]" : "ring-1 ring-transparent hover:ring-neutral-300"
           }`}
       >
@@ -1457,6 +1804,7 @@ export default function Dashboard() {
         <button
           type="button"
           aria-label={`${def.name}: see formula`}
+          data-tour={def.id === 1 ? "kpi-info" : undefined}
           onClick={() => setModalKpi(def)}
           className="absolute right-1 top-1 flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-800 print:hidden"
         >
@@ -1616,6 +1964,17 @@ export default function Dashboard() {
               <div className="flex shrink-0 items-center gap-2 print:hidden">
                 <button
                   type="button"
+                  onClick={() => setTourActive(true)}
+                  aria-label="Take a tour"
+                  title="Take a tour"
+                  className="flex h-10 items-center gap-2 rounded-xl bg-white px-3 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
+                >
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full border border-current text-[10px] font-bold leading-none">?</span>
+                  <span className="hidden sm:inline">Tour</span>
+                </button>
+                <button
+                  type="button"
+                  data-tour="print"
                   onClick={() => window.print()}
                   aria-label="Export report"
                   title="Export report"
@@ -1625,6 +1984,7 @@ export default function Dashboard() {
                 </button>
                 <button
                   type="button"
+                  data-tour="filters"
                   onClick={() => setShowFilterModal(true)}
                   className="relative flex h-10 items-center gap-2 rounded-xl bg-neutral-900 px-3.5 text-sm font-medium text-white transition hover:bg-neutral-700"
                 >
@@ -1703,6 +2063,7 @@ export default function Dashboard() {
                   <button
                     type="button"
                     onClick={() => setShowIntervention(true)}
+                    data-tour="action-plan"
                     className="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-rose-50 hover:shadow-md cursor-pointer print:hidden"
                   >
                     <span>See action plan</span>
@@ -2160,107 +2521,163 @@ export default function Dashboard() {
 
             {/* ── Teaching load + SETE + hard courses ── */}
             <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-3">
-              <section id="teaching-load" className="scroll-mt-24 rounded-2xl bg-white p-4 sm:p-5 lg:col-span-2">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="text-base font-semibold">Teaching load</h3>
-                    <p className="text-sm text-neutral-500">Select a row to see its SETE scores. Standard load: 18 units. Scores are pooled by course, not by instructor.</p>
+              <div className="flex flex-col gap-3 sm:gap-4 lg:col-span-2">
+                <section id="teaching-load" className="scroll-mt-24 rounded-2xl bg-white p-4 sm:p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="text-base font-semibold">Teaching load</h3>
+                      <p className="text-sm text-neutral-500">Select a row to see its SETE scores. Standard load: 18 units. Scores are pooled by course, not by instructor.</p>
+                    </div>
+                    <span className="shrink-0 text-sm text-neutral-500">{selectedYear}</span>
                   </div>
-                  <span className="shrink-0 text-sm text-neutral-500">{selectedYear}</span>
-                </div>
 
-                {/* Desktop / tablet table */}
-                <div className="mt-3 hidden md:block">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-neutral-100 text-xs text-neutral-500">
-                        <th className="pb-2 pr-2 font-medium">Course</th>
-                        <th className="pb-2 pr-2 text-center font-medium">Type</th>
-                        <th className="pb-2 pr-2 text-center font-medium">Sections</th>
-                        <th className="pb-2 pr-2 text-center font-medium">Units</th>
-                        <th className="pb-2 text-right font-medium">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-neutral-100">
-                      {filteredFaculty.map((f) => {
-                        const isRowSelected = selectedFacultyId === f.id;
-                        return (
-                          <tr
-                            key={f.id}
+                  {/* Desktop / tablet table */}
+                  <div className="mt-3 hidden md:block">
+                    <table className="w-full text-left text-sm">
+                      <thead>
+                        <tr className="border-b border-neutral-100 text-xs text-neutral-500">
+                          <th className="pb-2 pr-2 font-medium">Course</th>
+                          <th className="pb-2 pr-2 text-center font-medium">Type</th>
+                          <th className="pb-2 pr-2 text-center font-medium">Sections</th>
+                          <th className="pb-2 pr-2 text-center font-medium">Units</th>
+                          <th className="pb-2 text-right font-medium">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-100">
+                        {filteredFaculty.map((f) => {
+                          const isRowSelected = selectedFacultyId === f.id;
+                          return (
+                            <tr
+                              key={f.id}
+                              data-tour={filteredFaculty[0]?.id === f.id ? "teaching-row" : undefined}
+                              onClick={() => setSelectedFacultyId(isRowSelected ? null : f.id)}
+                              className={`cursor-pointer transition ${isRowSelected ? "bg-neutral-100" : "hover:bg-neutral-50"}`}
+                            >
+                              <td className="rounded-l-lg py-2.5 pl-2 pr-2">
+                                <span className="font-medium">{f.title}</span>
+                                <span className="ml-2 text-xs text-neutral-500">{f.courseCode}</span>
+                              </td>
+                              <td className="whitespace-nowrap py-2.5 pr-2 text-center text-neutral-600">{f.courseType === "GenEd" ? "Gen Ed" : f.courseType}</td>
+                              <td className="py-2.5 pr-2 text-center font-semibold tabular-nums">{f.sections}</td>
+                              <td className="py-2.5 pr-2 text-center font-semibold tabular-nums">{f.units}</td>
+                              <td className="rounded-r-lg py-2.5 pr-2 text-right"><StatusLabel status={f.status} /></td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile list: compact rows */}
+                  <ul className="mt-2 divide-y divide-neutral-100 md:hidden">
+                    {filteredFaculty.map((f) => {
+                      const isRowSelected = selectedFacultyId === f.id;
+                      return (
+                        <li key={f.id} data-tour={filteredFaculty[0]?.id === f.id ? "teaching-row" : undefined}>
+                          <button
+                            type="button"
                             onClick={() => setSelectedFacultyId(isRowSelected ? null : f.id)}
-                            className={`cursor-pointer transition ${isRowSelected ? "bg-neutral-100" : "hover:bg-neutral-50"}`}
+                            aria-pressed={isRowSelected}
+                            className={`flex w-full items-center justify-between gap-3 rounded-lg px-2 py-2 text-left ${isRowSelected ? "bg-neutral-100" : ""
+                              }`}
                           >
-                            <td className="rounded-l-lg py-2.5 pl-2 pr-2">
-                              <span className="font-medium">{f.title}</span>
-                              <span className="ml-2 text-xs text-neutral-500">{f.courseCode}</span>
+                            <span className="min-w-0">
+                              <span className="block truncate text-[13px] font-medium leading-snug">
+                                {f.title}
+                              </span>
+                              <span className="block truncate text-[11px] leading-snug text-neutral-500">
+                                {f.courseCode} · {f.sections} sections · {f.units} units
+                              </span>
+                            </span>
+                            <StatusLabel status={f.status} />
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  {filteredFaculty.length === 0 && (
+                    <p className="py-6 text-center text-sm text-neutral-500">No courses to show.</p>
+                  )}
+
+                  <div className="mt-3 grid grid-cols-3 gap-2 border-t border-neutral-100 pt-3 text-center">
+                    <div>
+                      <p className="text-xs text-neutral-500">Capacity</p>
+                      <p className="text-sm font-semibold tabular-nums">{baseTermData.availableFaculty * 3} units</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-neutral-500">Needed</p>
+                      <p className="text-sm font-semibold tabular-nums">{baseTermData.sectionsNeeded * 3} units</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-neutral-500">Gap</p>
+                      {baseTermData.facultyShortage < 0 ? (
+                        <p className="inline-block rounded-md bg-[#F2B705]/25 px-1.5 text-sm font-semibold tabular-nums">
+                          {Math.abs(baseTermData.facultyShortage)} sections
+                        </p>
+                      ) : (
+                        <p className="text-sm font-semibold">None</p>
+                      )}
+                    </div>
+                  </div>
+                </section>
+
+                {/* ── SETE heatmap ── */}
+                <section id="sete-heatmap" className="scroll-mt-24 grow rounded-2xl bg-white p-4 sm:p-5">
+                  <h3 className="text-base font-semibold">SETE by course</h3>
+                  <p className="text-sm text-neutral-500">
+                    Goal 85%.{weakestDim && ` Lowest overall: ${weakestDim.name} (${weakestDim.avg.toFixed(1)}%).`}
+                  </p>
+
+                  <div className="mt-3 overflow-x-auto">
+                    <table className="w-full min-w-[620px] border-separate border-spacing-1 text-center text-xs">
+                      <thead>
+                        <tr>
+                          <th className="w-44" />
+                          {heatmapCourses.map((f) => (
+                            <th key={f.id} scope="col" title={f.title} className="px-1 pb-1 font-medium text-neutral-600">
+                              {f.courseCode.split(",")[0].trim()}
+                            </th>
+                          ))}
+                          <th scope="col" className="px-1 pb-1 font-semibold text-neutral-900">All</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {heatmapRows.map((r) => (
+                          <tr key={r.code}>
+                            <th scope="row" className="whitespace-nowrap pr-2 text-left text-sm font-normal text-neutral-700">{r.name}</th>
+                            {r.scores.map((sc, i) => (
+                              <td
+                                key={heatmapCourses[i].id}
+                                title={`${r.name}, ${heatmapCourses[i].title}: ${sc ?? "N/A"}%`}
+                                className={`rounded-md py-1.5 font-medium tabular-nums ${sc === null ? "bg-neutral-100 text-neutral-400" : heatCell(sc)}`}
+                              >
+                                {sc === null ? "N/A" : sc.toFixed(1)}
+                              </td>
+                            ))}
+                            <td className={`rounded-md py-1.5 font-semibold tabular-nums ${r.avg === null ? "bg-neutral-100 text-neutral-400" : heatCell(r.avg)}`}>
+                              {r.avg === null ? "N/A" : r.avg.toFixed(1)}
                             </td>
-                            <td className="whitespace-nowrap py-2.5 pr-2 text-center text-neutral-600">{f.courseType === "GenEd" ? "Gen Ed" : f.courseType}</td>
-                            <td className="py-2.5 pr-2 text-center font-semibold tabular-nums">{f.sections}</td>
-                            <td className="py-2.5 pr-2 text-center font-semibold tabular-nums">{f.units}</td>
-                            <td className="rounded-r-lg py-2.5 pr-2 text-right"><StatusLabel status={f.status} /></td>
                           </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Mobile list: compact rows */}
-                <ul className="mt-2 divide-y divide-neutral-100 md:hidden">
-                  {filteredFaculty.map((f) => {
-                    const isRowSelected = selectedFacultyId === f.id;
-                    return (
-                      <li key={f.id}>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedFacultyId(isRowSelected ? null : f.id)}
-                          aria-pressed={isRowSelected}
-                          className={`flex w-full items-center justify-between gap-3 rounded-lg px-2 py-2 text-left ${isRowSelected ? "bg-neutral-100" : ""
-                            }`}
-                        >
-                          <span className="min-w-0">
-                            <span className="block truncate text-[13px] font-medium leading-snug">
-                              {f.title}
-                            </span>
-                            <span className="block truncate text-[11px] leading-snug text-neutral-500">
-                              {f.courseCode} · {f.sections} sections · {f.units} units
-                            </span>
-                          </span>
-                          <StatusLabel status={f.status} />
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-                {filteredFaculty.length === 0 && (
-                  <p className="py-6 text-center text-sm text-neutral-500">No courses to show.</p>
-                )}
-
-                <div className="mt-3 grid grid-cols-3 gap-2 border-t border-neutral-100 pt-3 text-center">
-                  <div>
-                    <p className="text-xs text-neutral-500">Capacity</p>
-                    <p className="text-sm font-semibold tabular-nums">{baseTermData.availableFaculty * 3} units</p>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                  <div>
-                    <p className="text-xs text-neutral-500">Needed</p>
-                    <p className="text-sm font-semibold tabular-nums">{baseTermData.sectionsNeeded * 3} units</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-neutral-500">Gap</p>
-                    {baseTermData.facultyShortage < 0 ? (
-                      <p className="inline-block rounded-md bg-[#F2B705]/25 px-1.5 text-sm font-semibold tabular-nums">
-                        {Math.abs(baseTermData.facultyShortage)} sections
-                      </p>
-                    ) : (
-                      <p className="text-sm font-semibold">None</p>
-                    )}
-                  </div>
-                </div>
-              </section>
 
-              <div className="space-y-3 sm:space-y-4">
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 border-t border-neutral-100 pt-2.5 text-xs text-neutral-500">
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-neutral-700" />90 or higher</span>
+                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-neutral-200" />85 to 89.9</span>
+                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#8A1538]/20" />80 to 84.9</span>
+                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#8A1538]" />Below 80</span>
+                    </div>
+                    <p>Response rate 84.6% · SETE is one input, not the full picture.</p>
+                  </div>
+                </section>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:gap-4">
                 {/* SETE scores */}
-                <section id="sete-scores" className="scroll-mt-24 rounded-2xl bg-white p-4 sm:p-5">
+                <section id="sete-scores" className="scroll-mt-24 flex grow flex-col rounded-2xl bg-white p-4 sm:p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <h3 className="text-base font-semibold">SETE scores</h3>
@@ -2282,6 +2699,7 @@ export default function Dashboard() {
                       ) : (
                         <button
                           type="button"
+                          data-tour="sete-comments"
                           onClick={() => setShowFeedbackModal(true)}
                           className="text-sm font-medium underline underline-offset-4 hover:text-neutral-600"
                         >
@@ -2291,7 +2709,7 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <div className="mt-4 space-y-3.5">
+                  <div className="mt-4 flex grow flex-col justify-between gap-3.5">
                     {displayedSeteDimensions.map((c) => {
                       const low = c.score < 85;
                       return (
@@ -2319,10 +2737,6 @@ export default function Dashboard() {
                                 title="Goal: 85%"
                                 aria-hidden="true"
                               />
-                            </div>
-                            <div className="mt-0.5 flex justify-between text-[10px] text-neutral-400">
-                              <span>0</span>
-                              <span>100</span>
                             </div>
                           </div>
                         </Tip>
@@ -2368,10 +2782,10 @@ export default function Dashboard() {
                 </section>
 
                 {/* High-failure courses */}
-                <section id="high-failure-courses" className="scroll-mt-24 rounded-2xl bg-white p-4 sm:p-5">
+                <section id="high-failure-courses" className="scroll-mt-24 flex grow flex-col rounded-2xl bg-white p-4 sm:p-5">
                   <h3 className="text-base font-semibold">High-failure courses</h3>
                   <p className="text-sm text-neutral-500">Midterm failure rate · Limit 20%</p>
-                  <div className="mt-4 space-y-3.5">
+                  <div className="mt-4 flex grow flex-col justify-between gap-3.5">
                     {filteredBottlenecks.map((s) => {
                       const critical = s.failRate >= 20;
                       return (
@@ -2404,10 +2818,6 @@ export default function Dashboard() {
                                 aria-hidden="true"
                               />
                             </div>
-                            <div className="mt-0.5 flex justify-between text-[10px] text-neutral-400">
-                              <span>0%</span>
-                              <span>30%</span>
-                            </div>
                           </div>
                         </Tip>
                       );
@@ -2436,6 +2846,152 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {/* ── Passing rate by course ── */}
+            <section id="course-passing-trend" className="scroll-mt-24 rounded-2xl bg-white p-4 sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-base font-semibold">Passing rate by course</h3>
+                  <p className="text-sm text-neutral-500">Per academic year · Goal 90%</p>
+                </div>
+
+                {/* Course Filter */}
+                <div className="flex items-center gap-2">
+                  <label htmlFor="course-trend-filter" className="text-xs font-medium text-neutral-500 shrink-0">
+                    Filter course:
+                  </label>
+                  <select
+                    id="course-trend-filter"
+                    value={selectedPassingCourseFilter}
+                    onChange={(e) => setSelectedPassingCourseFilter(e.target.value)}
+                    className="h-9 rounded-xl border border-neutral-200 bg-neutral-50 px-3 pr-8 text-xs font-medium text-neutral-800 outline-none transition hover:bg-neutral-100 focus:border-neutral-400 focus:bg-white focus:ring-2 focus:ring-neutral-900/10 cursor-pointer"
+                  >
+                    <option value="all">All Courses</option>
+                    {passingCourseCodes.map((code) => (
+                      <option key={code} value={code}>
+                        {code}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedPassingCourseFilter !== "all" && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPassingCourseFilter("all")}
+                      className="text-xs font-medium text-neutral-500 hover:text-neutral-900 underline underline-offset-2 shrink-0"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Course detail badge when a single course is selected */}
+              {selectedPassingCourseFilter !== "all" && COURSE_PASSING_BY_YEAR[selectedPassingCourseFilter] && (
+                <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-neutral-50 px-3.5 py-2 text-xs">
+                  <span className="font-semibold text-neutral-900">
+                    {selectedPassingCourseFilter}
+                  </span>
+                  <span className="text-neutral-300">|</span>
+                  <span className="text-neutral-600">
+                    Current: <strong className="text-neutral-900">{COURSE_PASSING_BY_YEAR[selectedPassingCourseFilter][3]}%</strong>
+                  </span>
+                  <span className="text-neutral-300">|</span>
+                  <span className={COURSE_PASSING_BY_YEAR[selectedPassingCourseFilter][3] >= 90 ? "text-emerald-700 font-medium" : "text-[#8A1538] font-medium"}>
+                    {COURSE_PASSING_BY_YEAR[selectedPassingCourseFilter][3] >= 90
+                      ? `Goal met (+${(COURSE_PASSING_BY_YEAR[selectedPassingCourseFilter][3] - 90).toFixed(1)}%)`
+                      : `Below goal (${(COURSE_PASSING_BY_YEAR[selectedPassingCourseFilter][3] - 90).toFixed(1)}%)`}
+                  </span>
+                  <span className="text-neutral-300">|</span>
+                  <span className="text-neutral-500">
+                    4-Year change:{" "}
+                    <strong className="text-neutral-700">
+                      {(COURSE_PASSING_BY_YEAR[selectedPassingCourseFilter][3] - COURSE_PASSING_BY_YEAR[selectedPassingCourseFilter][0]) >= 0 ? "+" : ""}
+                      {(COURSE_PASSING_BY_YEAR[selectedPassingCourseFilter][3] - COURSE_PASSING_BY_YEAR[selectedPassingCourseFilter][0]).toFixed(1)}%
+                    </strong>
+                  </span>
+                </div>
+              )}
+
+              <div className="mt-3 h-[240px] w-full">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200}>
+                  <LineChart data={coursePassingTrend} margin={{ top: 8, right: 12, left: -10, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ECECEF" />
+                    <XAxis dataKey="year" tick={{ fill: "#737373", fontSize: 11 }} tickLine={false} axisLine={false} />
+                    <YAxis
+                      tick={{ fill: "#737373", fontSize: 11 }}
+                      tickLine={false}
+                      axisLine={false}
+                      domain={[75, 100]}
+                      ticks={[75, 80, 85, 90, 95, 100]}
+                      tickFormatter={(v: number) => `${v}%`}
+                    />
+                    <ReferenceLine y={90} stroke="#171717" strokeDasharray="4 4" />
+                    <Tooltip
+                      contentStyle={{ background: "#171717", border: "none", borderRadius: 12, fontSize: 12 }}
+                      labelStyle={{ color: "#d4d4d4" }}
+                      itemStyle={{ color: "#fff" }}
+                      itemSorter={(item: any) => -Number(item.value)}
+                      formatter={(v: any, name: any) => [`${v}%`, name]}
+                    />
+                    {(selectedPassingCourseFilter === "all" ? passingCourseCodes : [selectedPassingCourseFilter]).map((code) => (
+                      <Line
+                        key={code}
+                        type="monotone"
+                        dataKey={code}
+                        stroke={COURSE_LINE_COLORS[code]}
+                        strokeWidth={selectedPassingCourseFilter === "all" ? 2.5 : 3}
+                        hide={selectedPassingCourseFilter === "all" && hiddenCourseLines.includes(code)}
+                        dot={{ r: selectedPassingCourseFilter === "all" ? 3 : 4, fill: COURSE_LINE_COLORS[code], stroke: "#fff", strokeWidth: 1 }}
+                        activeDot={{ r: 5 }}
+                      />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Legend & Interactive line toggle */}
+              <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1.5 border-t border-neutral-100 pt-2.5 text-xs text-neutral-500 print:hidden">
+                {selectedPassingCourseFilter === "all" ? (
+                  <>
+                    {passingCourseCodes.map((code) => {
+                      const off = hiddenCourseLines.includes(code);
+                      return (
+                        <button
+                          key={code}
+                          type="button"
+                          aria-pressed={!off}
+                          onClick={() =>
+                            setHiddenCourseLines((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]))
+                          }
+                          className={`flex items-center gap-1.5 rounded-full px-2 py-0.5 transition hover:bg-neutral-100 ${off ? "line-through opacity-40" : ""}`}
+                          title={`Click to ${off ? "show" : "hide"} ${code}`}
+                        >
+                          <span className="h-2.5 w-2.5 rounded-full" style={{ background: COURSE_LINE_COLORS[code] }} />
+                          {code}
+                        </button>
+                      );
+                    })}
+                  </>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center gap-1.5 font-medium text-neutral-900">
+                      <span className="h-2.5 w-2.5 rounded-full" style={{ background: COURSE_LINE_COLORS[selectedPassingCourseFilter] }} />
+                      {selectedPassingCourseFilter}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPassingCourseFilter("all")}
+                      className="ml-2 text-xs text-neutral-500 hover:text-neutral-900 underline underline-offset-2"
+                    >
+                      Show all courses
+                    </button>
+                  </div>
+                )}
+                <span className="ml-auto flex items-center gap-1.5">
+                  <span className="inline-block h-0 w-4 border-t-2 border-dashed border-neutral-900" />
+                  Goal (90%)
+                </span>
+              </div>
+            </section>
           </div>
         </main>
 
@@ -2463,6 +3019,8 @@ export default function Dashboard() {
             })}
           </div>
         </nav>
+
+        {tourActive && <TourCursor steps={TOUR_STEPS} onClose={() => setTourActive(false)} />}
 
         {/* ══════════ FORMULA WINDOW ══════════ */}
         {modalKpi && (
